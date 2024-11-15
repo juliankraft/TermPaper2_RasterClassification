@@ -1,0 +1,38 @@
+# exepted folders
+data/
+ArcGisProject/
+
+# PDF output - only the main file
+*.pdf
+!LaTeX/figures/*.pdf
+!main.pdf
+
+# LaTeX/XeLaTeX temporary files
+*.aux
+*.log
+*.toc
+*.bcf
+*.run.xml
+*.fls
+*.out
+*.lof
+*.lot
+*.synctex.gz
+*.bbl
+*.blg
+*.fdb_latexmk
+
+# Python
+__pycache__/
+*.pyc
+
+# VS code
+.vscode/
+
+
+# macOS
+.DS_Store
+
+# Logs
+events.out*
+*.cfg

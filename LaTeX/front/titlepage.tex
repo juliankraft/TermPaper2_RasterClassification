@@ -1,0 +1,126 @@
+% !TEX root = ../main.tex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TITLE PAGE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% New command to make the lines in the title page
+\newcommand{\HRule}{\rule{.9\linewidth}{.6pt}} 
+
+\newgeometry{margin=1in}
+\begin{titlepage}
+
+% Make the title page mostly inert to the parskip-setting.
+\setlength{\parskip}{0pt}
+
+\begin{center}
+\includegraphics[width=0.15\textwidth]{Figures/zhaw_rgb}
+
+\ifxetex
+    \vspace{0.6cm}
+    {\zhawtitlefont\color{zhawblue}\LARGE\university\par}   % University
+    \vspace{0.2cm}
+\else
+    \vspace{0.87cm}
+    {\includegraphics[height=17.9pt]{figures/zhaw_font_eng_font}\par}
+    \vspace{0.05cm}
+\fi
+{\Large \ifdefempty{\department}{}{Department \department\par}} % Department
+\vspace{0.2cm}
+{\Large \institute\par}                                     % Institute
+\vspace{3.5cm}                            
+\textsc{\Large \projecttype}                                % Project type
+\vspace{0.2cm}
+\HRule 
+\vspace{0.4cm}
+{\huge \bfseries \projecttitle\par}                         % Project title
+\vspace{0.4cm}  
+\HRule
+\vspace{1cm}
+                     
+\textsc{\Large \projectdate}                                % Project type
+\vspace{1.5cm}
+
+
+
+\begin{footnotesize}
+\begin{tabular}{lr}
+
+% Authors
+\begin{minipage}[t]{0.41\textwidth}
+\begin{flushleft}
+    \boldit{Author:}\\
+    \printauthors[\\][email3]% No whitespace!
+    \vspace{1cm}
+\end{flushleft}
+\end{minipage}
+
+&
+
+% Collaborators
+\begin{minipage}[t]{0.41\textwidth}
+\begin{flushright}
+    \boldit{Tutor:} \\
+    \printcollaborators[\\][email3]% No whitespace!
+    \vspace{1cm}
+\end{flushright}
+\end{minipage}
+
+\\
+
+% Affiliations
+\begin{minipage}[t]{0.41\textwidth}
+\begin{flushleft}
+    \boldit{Affiliations:} \\
+    \printaffiliations[\\]
+\end{flushleft}
+\end{minipage}
+
+&
+
+% Industrial partners
+% \begin{minipage}[t]{0.41\textwidth}
+% \begin{flushright}
+%     \boldit{Industry partner:} \\
+%     \printcompanies[\\]
+% \end{flushright}
+% \end{minipage}
+
+\end{tabular}
+\end{footnotesize}
+
+% \begin{footnotesize}
+% \begin{minipage}[t]{0.4\textwidth}
+% \begin{flushleft}
+%     \emph{Authors:}\\
+%     \printauthors[\\][compact]\\
+%     \vspace{0.5cm}
+%     \emph{Affiliations:} \\
+%     \printaffiliations[\\]
+% \end{flushleft}
+% \end{minipage}
+% \begin{minipage}[t]{0.4\textwidth}
+% \begin{flushright}
+%     \emph{Partners:} \\
+%     \printcollaborators[\\][compact]\\
+%     \vspace{0.5cm}
+%     \emph{Industrial partner:} \\
+%     \printcompanies[\\]
+% \end{flushright}
+% \end{minipage}
+% \end{footnotesize}
+
+\vspace{2cm}
+ 
+\vfill
+
+% {\large
+% \projectdate\\
+% \vspace{1.5cm}
+% Project Code:\\
+% \projectcode
+% }
+\vfill
+\end{center}
+\end{titlepage}
+\restoregeometry

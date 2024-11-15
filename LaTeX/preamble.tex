@@ -1,0 +1,310 @@
+% !TEX root = main.tex
+%
+% TODO: Have a clearer separation between ZHAW Thesis class and this preamble.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Fonts and characters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Support for special characters
+\usepackage[utf8]{inputenc}    % Input encoding: Support non-ascii characters
+\usepackage[T1]{fontenc}       % Font encoding: T1 is good choice for Europe
+
+% Set main fonts
+% Fonts catalogue: https://tug.org/FontCatalogue/
+\usepackage{mathpazo}          % Use the Palatino font by default
+\usepackage{beramono}          % Override the monospace/typewriter font
+
+\usepackage{amssymb}           % Maths
+\usepackage{amsmath}           % Maths 
+\usepackage{numprint}          % For nicely printing large numbers
+\usepackage{lmodern}           % Use LaTeX math fonts, requires T1
+\usepackage[normalem]{ulem}    % Strikethrough text.
+
+\usepackage{pdfpages}
+
+% ZHAW title font
+% Try to load Helvetica Rounded Bold, and OpenType font.
+% Loading OTF or system fonts is possible with XeLaTeX.
+% If the document is compiled using pdfLaTeX, resort 
+\usepackage{ifxetex}
+\ifxetex
+    \usepackage{fontspec}
+    \newfontfamily\zhawtitlefont{Helvetica Rounded Bold}
+\else
+    \newcommand{\zhawtitlefont}{\scshape}
+\fi
+
+\newcommand{\boldit}[1]{\textit{\textbf{#1}}}
+
+% Set Helvetica as the default font
+\usepackage[scaled]{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Comments
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[color=cyan,colorinlistoftodos]{todonotes}
+\newcommand{\replace}[2]{{\sout{#1}} \textcolor{cyan}{#2}}
+\newcommand{\note}[1]{\textcolor{cyan}{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Colors
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Set up colors
+\usepackage[dvipsnames]{xcolor} % Color management
+% \PassOptionsToPackage{dvipsnames}{xcolor}  % Had to change this.
+
+% ZHAW Blue: Pantone 2945 U / R0 G100 B166
+\definecolor{zhawblue}{rgb}{0.00, 0.39, 0.65}
+\definecolor{zhawlightblue}{rgb}{0.82, 0.88, 0.93}
+% Colors related to code listings
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codebackground}{rgb}{0.93,0.94,0.95}
+% Colors related to tables
+\definecolor{tablegray}{rgb}{0.9,0.9,0.9}
+\colorlet{tableheader}{tablegray}
+% Colors related to hyperref
+\definecolor{linkcolor}{rgb}{0.00, 0.39, 0.65}
+\definecolor{urlcolor}{rgb}{0.00, 0.39, 0.65}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Environments
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \usepackage[ngerman]{babel}    % Language support
+\usepackage[english]{babel}    % Language support
+\usepackage[                    % Create hypertext links
+    colorlinks=true, 
+    allbordercolors={white}, 
+    linkcolor=linkcolor,
+    citecolor=linkcolor, 
+    filecolor=linkcolor,
+    linktoc=all, 
+    urlcolor=urlcolor
+    ]{hyperref}
+
+\usepackage{graphicx}          % Include graphics
+\usepackage{float}             % Improved interface for floating objects
+\usepackage{tabularx}          % Create nicer tables
+\usepackage{multirow}          % Merge rows in tables
+\usepackage{booktabs}          % To further beautify tables
+\usepackage{longtable}         % For tables that span multiple pages
+\usepackage{caption}           % Customized caption
+\usepackage{subcaption}        % Subfigure captions
+\usepackage{makecell}          % Per-cell formatting in tables (\makecell)
+\usepackage{pdfpages}          % Required to include PDF files/graphics (\includepdf)
+\usepackage{colortbl}          % Tables with colors
+
+\usepackage{todonotes}         % Introduces the command \todo
+\setlength{\marginparwidth}{2.5cm} % Adjust this if the todo notes are out of margins
+\usepackage{array,ragged2e}    % For ragged alignment of multi-line table cells
+
+% Adjust tables
+\colorlet{tableheadcolor}{gray!25}                % Table header colour
+\newcommand{\headcol}{\rowcolor{tableheadcolor}}% % The color of the head
+\newcommand{\topline}{\arrayrulecolor{black}      %
+                      \specialrule{0.1em}{\abovetopsep}{0.5pt}%
+                      \arrayrulecolor{tableheadcolor}%
+                      \specialrule{\belowrulesep}{0pt}{-3pt}%
+            \arrayrulecolor{black}
+            }
+\newcommand{\midline}{\arrayrulecolor{tableheadcolor}
+            \specialrule{\aboverulesep}{-1pt}{0pt}%
+            \arrayrulecolor{black}\specialrule{\lightrulewidth}{0pt}{0pt}%
+            \arrayrulecolor{white}\specialrule{\belowrulesep}{0pt}{-3pt}%
+            \arrayrulecolor{black}
+            }
+\newcommand{\bottomline}{\arrayrulecolor{white}\specialrule{\aboverulesep}{0pt}{-2pt}%
+            \arrayrulecolor{black}\specialrule{\heavyrulewidth}{0pt}{\belowbottomsep}}%
+
+% Create boxes as follows:
+% \begin{colorbox}{red}{2}
+\usepackage{tcolorbox}
+\newtcolorbox{textbox}[2]{
+    arc=3pt,
+    boxrule=#2pt,
+    colback=#1!25!white,
+    width=\textwidth,
+    halign=left,
+    valign=center,
+    colframe=#1!75!black
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Code listings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\captionsetup{format=plain,             % plain or hang
+              justification=justified,  % justified, centering, raggedright, ...
+              labelfont=bf,
+              font=small,
+              margin=20pt}
+              
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Code listings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+
+
+% Setup code listings
+\usepackage{listings}
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{codebackground},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\scriptsize,
+    breakatwhitespace=false,
+    breaklines=true,
+%    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4
+}
+\lstset{style=mystyle}
+
+% minted is an alternative code listing package. (See appendix A)
+% For it to run successfully, ensure the following:
+% - the Python package Pygments. Install with the following command:
+%       python -m pip install Pygments
+% - pdflatex (or xelatex) is executed with the flag --shell-escape
+%   If you are using a TEX editor, you can modify the typesetting 
+%   command somewhere in the settings.
+%\usepackage[outputdir=build]{minted}
+%\usemintedstyle{xcode}
+% For fancier coloring schemes, see here:
+% https://tex.stackexchange.com/questions/585582
+% One could also create an own style in Pygments
+% https://pygments.org/docs/styles/#creating-own-styles
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% References
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[autostyle=true]{csquotes} 
+                               % Required to generate language-dependent quotes 
+                               % in the bibliography
+
+\usepackage[
+    backend=biber,             % Use biber backend (an external tool)
+    sorting=nyt,               % Sort by name, year, title
+    style=apa,                 % Choose here your preferred citation style
+    uniquename=false,          % Avoids creating unique author lists
+    uniquelist=false           % Avoids creating unique author lists
+]{biblatex}
+
+\addbibresource{SA2.bib} % The filename of the bibliography
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MARGIN SETTINGS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{geometry}
+\geometry{
+    paper=a4paper,       % Change to letterpaper for US letter
+    %inner=2.5cm,        % Inner margin
+    %outer=3.8cm,        % Outer margin
+    %top=1.5cm,          % Top margin
+    bottom=4.cm,         % Bottom margin
+    bindingoffset=.5cm,  % Binding offset
+    %showframe,          % Show the type block of the page
+}
+
+% Other layout settings
+\setlength\parindent{0em} % No indent
+\setlength{\parskip}{1em}
+%\usepackage{parskip}
+
+
+\setlength{\intextsep}{30pt}   % Distance between image and text 
+\usepackage{enumitem}          % Layout control for list environments (e.g, itemize)
+\setlist{noitemsep}            % Suppress extra spaces between items
+%\setlist{nosep}               % Suppress spaces before/after list environments
+
+
+%----------------------------------------------------------------------------------------
+%   PENALTIES
+%----------------------------------------------------------------------------------------
+
+\doublehyphendemerits=10000 % No consecutive line hyphens
+\brokenpenalty=10000 % No broken words across columns/pages
+\widowpenalty=9999 % Almost no widows at bottom of page
+\clubpenalty=9999 % Almost no orphans at top of page
+\interfootnotelinepenalty=9999 % Almost never break footnotes
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MANAGE AUTHOR LISTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[affilmode=count]{authors}
+
+
+% Trick: Convert the setter into a getter.
+\NewDocumentCommand{\projecttitle}{m}{\renewcommand{\projecttitle}{#1}}
+\NewDocumentCommand{\projecttype}{m}{\renewcommand{\projecttype}{#1}}
+\NewDocumentCommand{\projectcode}{m}{\renewcommand{\projectcode}{#1}}
+\NewDocumentCommand{\projectdate}{m}{\renewcommand{\projectdate}{#1}}
+\NewDocumentCommand{\keywords}{m}{\renewcommand{\keywords}{#1}}
+
+\NewDocumentCommand{\university}{m}{\renewcommand{\university}{#1}}
+\NewDocumentCommand{\department}{m}{\renewcommand{\department}{#1}}
+\NewDocumentCommand{\institute}{m}{\renewcommand{\institute}{#1}}
+\NewDocumentCommand{\group}{m}{\renewcommand{\group}{#1}}
+
+
+%----------------------------------------------------------------------------------------
+%   HEADERS AND FOOTERS
+%----------------------------------------------------------------------------------------
+
+% Notes:
+% - In twoside mode, left and right side pages may differ
+% - Pages: left = even, right = odd
+%   Chapters usually are forced to start at odd pages.
+% - \markboth{left}{right} how left and right pages are marked
+% - \automark is a convenience command from the scrlayer-scrpage package. It issues 
+%   that \markboth is called for every \chapter and \section command.
+% - Historical note: scrlayer-scrpage is the successor of scrpage2
+% - Refs:
+%    \markboth:  https://tex.stackexchange.com/questions/198676
+%    \automark:  https://tex.stackexchange.com/questions/34269/
+%    \automark*: https://tex.stackexchange.com/questions/348550/
+%
+\usepackage[markcase=used]{scrlayer-scrpage}
+\ifoot{}% Empty inner footer by default
+\ofoot{}% Empty outer footer by default
+\providepairofpagestyles{basicStyle}{
+    % Header specs for style basicStyle
+    \clearpairofpagestyles%
+    % \automark[section]{section}
+    % \ihead{\headmark}% Inner header
+    % \ohead[\pagemark]{\pagemark}% Outer header
+    \cfoot[\pagemark]{\pagemark}% Footer with pagemark in the middle
+}
+\pagestyle{basicStyle}
+
+\providepairofpagestyles[basicStyle]{reportStyle}{%
+    \automark*[subsection]{}% Override right marks with section title once one is set
+                         % Otherwise, use the chapter title -> basicStyle
+}
+% \pagestyle{reportStyle}
+
+\KOMAoption{headsepline}{false} % set true to get a line below the header
+
+
+
+
+
+
