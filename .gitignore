@@ -5,7 +5,7 @@ ArcGisProject/
 # PDF output - only the main file
 *.pdf
 !LaTeX/figures/*.pdf
-!main.pdf
+# !main.pdf
 
 # LaTeX/XeLaTeX temporary files
 *.aux
