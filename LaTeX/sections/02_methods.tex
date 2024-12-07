@@ -65,3 +65,24 @@ efficient data access during training.
 
 \subsection{Data Loader and Augmentation}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+A custom DataLoader was implemented using PyTorch. The DataLoader is designed to index the available data
+depending on the cutout size and handles the data augmentation. For the data augmentation a parent class
+BaseAugmentor was implemented from which the different augmenters inherit. The implemented augmentors -
+refer to \autoref{tab:augmentors} - are than chained into a object of the class AugmentorChain
+wich is than used in the DataLoader.
+
+\begin{table}
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Augmentor} & \textbf{Description} \\
+        \hline
+        FlipAugmentor & Randomly flips the image vertically, horizontally or not at all \\
+        RotateAugmentor & Randomly rotates the image 0, 90, 180 or 270° \\
+        PixelNoiseAugmentor & Adds random noise to the image (parameter: scale) \\
+        ChannelNoiseAugmentor & Adds random noise to the channels (parameter: scale) \\
+        \hline
+    \end{tabular}
+    \caption{Implemented augmentors}
+    \label{tab:augmentors}
+\end{table}
