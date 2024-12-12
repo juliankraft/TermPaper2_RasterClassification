@@ -99,7 +99,7 @@ class ChunkWriter():
                 raise StopIteration
 
 chunkwriter = ChunkWriter(
-    tiff_path='../data/CombinedData_32signed/CombinedData32signed.tif',
-    save_path='../data/combined.zarr',
+    tiff_path='/cfs/earth/scratch/kraftjul/sa2/data/CombinedData_32signed/CombinedData32signed.tif',
+    save_path='/cfs/earth/scratch/kraftjul/sa2/data/combined.zarr',
     chunk_size=500)
 chunkwriter.write()
