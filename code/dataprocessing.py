@@ -5,6 +5,7 @@ import os
 from math import ceil
 from tqdm import tqdm
 
+
 class ChunkWriter():
     def __init__(self, tiff_path: str, save_path: str, chunk_size: int = 100):
         self.da = rxr.open_rasterio(tiff_path)
@@ -98,8 +99,17 @@ class ChunkWriter():
             if dev_mode and (i > 1):
                 raise StopIteration
 
-chunkwriter = ChunkWriter(
-    tiff_path='/cfs/earth/scratch/kraftjul/sa2/data/CombinedData_32signed/CombinedData32signed.tif',
-    save_path='/cfs/earth/scratch/kraftjul/sa2/data/combined.zarr',
-    chunk_size=500)
-chunkwriter.write()
+
+if __name__ == '__main__':
+
+    tiff_path = '/cfs/earth/scratch/kraftjul/sa2/data/CombinedData_32signed/CombinedData32signed.tif'
+    save_path = '/cfs/earth/scratch/kraftjul/sa2/data/combined.zarr'
+
+    if not os.path.exists(save_path):
+        raise FileNotFoundError(f'Tiff file {save_path} does not exist')
+
+    chunkwriter = ChunkWriter(
+        tiff_path=tiff_path,
+        save_path=save_path,
+        chunk_size=500)
+    chunkwriter.write()
