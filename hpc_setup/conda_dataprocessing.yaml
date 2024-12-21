@@ -1,4 +1,4 @@
-name: processing_env
+name: processing
 channels:
   - conda-forge
 dependencies:
@@ -7,4 +7,9 @@ dependencies:
   - rioxarray
   - tqdm
   - pip
-cd
+  - dask
+  - zarr
+  - matplotlib
+  - numpy
+  - pandas
+  
