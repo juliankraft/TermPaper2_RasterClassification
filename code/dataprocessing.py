@@ -71,7 +71,6 @@ class ChunkWriter():
         ds['label'] = ds.label.chunk({'x': self.chunk_size, 'y': self.chunk_size})
         ds['mask'] = ds.mask.chunk({'x': -1, 'y': -1})
 
-
         encoding = {}
 
         for variable in ds.data_vars:
