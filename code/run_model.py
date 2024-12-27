@@ -1,7 +1,6 @@
 # %%
 import xarray as xr
 import numpy as np
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 import dask
 
@@ -18,12 +17,15 @@ from torch import Tensor
 # %%
 dask.config.set(scheduler='synchronous')
 
+
 # %%
 def coarsen(da: xr.DataArray, factor: int = 10, reduction: str = 'mean') -> xr.DataArray:
     return getattr(da.coarsen(x=factor, y=factor, boundary='trim'), reduction)().compute()
 
+
 def count_trainable_parameters(model: torch.nn.Module) -> int:
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
 
 # %%
 class BaseAugmentor(object):
@@ -43,7 +45,7 @@ class BaseAugmentor(object):
 
         Returns:
             Augmented array with same shape as cutout.
-        
+
         """
 
         raise NotImplementedError(
@@ -59,8 +61,8 @@ class BaseAugmentor(object):
             raise AttributeError('attribute `random_state` is not set. Use `set_random_state`.')
         else:
             return self._random_state
-    
-    @random_state.setter 
+
+    @random_state.setter
     def random_state(self, random_state: np.random.RandomState) -> None:
         if not isinstance(random_state, np.random.RandomState):
             raise TypeError(
@@ -79,7 +81,7 @@ class FlipAugmentor(BaseAugmentor):
 
         Returns:
             Augmented array with same shape as cutout.
-        
+
         """
 
         flip_vertical = self.random_state.randint(0, 2)
@@ -111,7 +113,7 @@ class RotateAugmentor(BaseAugmentor):
 
         Returns:
             Augmented array with same shape as cutout.
-        
+
         """
         num_rotate = self.random_state.randint(0, 4)
 
@@ -127,7 +129,7 @@ class PixelNoiseAugmentor(BaseAugmentor):
     """Random noise at pixel level."""
     def __init__(self, scale: float) -> None:
         """Init PixelNoiseAugmentor.
-        
+
         Args:
             scale: scale of noise.
         """
@@ -141,7 +143,7 @@ class PixelNoiseAugmentor(BaseAugmentor):
 
         Returns:
             Augmented array with same shape as cutout.
-        
+
         """
         random_noise = self.random_state.randn(*cutout.shape) * self.scale
 
@@ -155,7 +157,7 @@ class ChannelNoiseAugmentor(BaseAugmentor):
     """Random noise at channel level."""
     def __init__(self, scale: float) -> None:
         """Init ChannelNoiseAugmentor.
-        
+
         Args:
             scale: scale of noise.
         """
@@ -169,7 +171,7 @@ class ChannelNoiseAugmentor(BaseAugmentor):
 
         Returns:
             Augmented array with same shape as cutout.
-        
+
         """
         random_noise = self.random_state.randn(cutout.shape[2]) * self.scale
 
@@ -200,7 +202,7 @@ class AugmentorChain(object):
 
     def __repr__(self) -> str:
         if self.augmentors is None:
-            return f'AugmentorChain(augmentors=None)'
+            return 'AugmentorChain(augmentors=None)'
 
         autmentors_repr = [str(augmentor) for augmentor in self.augmentors]
         return f'AugmentorChain(random_seed={self.random_seed}, augmentors=[{", ".join(autmentors_repr)}])'
@@ -236,7 +238,7 @@ class RSData(Dataset):
 
         if (rs_means is None) != (rs_stds is None):
             raise ValueError(
-                'either pass both of `rs_means` and `rs_stds` or none.'    
+                'either pass both of `rs_means` and `rs_stds` or none.'
             )
 
         if rs_means is None:
@@ -313,7 +315,7 @@ class ResNet(nn.Module):
         groups: int = 1,
         width_per_group: int = 64,
         replace_stride_with_dilation: list[bool] | None = None,
-        norm_layer: Callable[..., nn.Module] | None= None,
+        norm_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__()
         _log_api_usage_once(self)
@@ -425,6 +427,7 @@ class ResNet(nn.Module):
     def forward(self, x: Tensor) -> Tensor:
         return self._forward_impl(x)
 
+
 if __name__ == '__main__':
 
     # %%
@@ -474,34 +477,37 @@ if __name__ == '__main__':
     model = ResNet(inplanes=4, num_classes=num_classes).to(device)
     print('Number of trainable parameters: ', count_trainable_parameters(model))
 
-    #Loss and optimizer
+    # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, weight_decay=0.000, momentum=0.9)  
-
+    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, weight_decay=0.000, momentum=0.9)
 
     # %%
     total_step = len(train_dl)
 
     for epoch in range(num_epochs):
-        for i, (images, labels) in tqdm(enumerate(train_dl), total=total_step, desc=f'Epoch {epoch+1}/{num_epochs} (train)'):  
-            #Move tensors to the configured device
+        for i, (images, labels) in tqdm(
+            enumerate(train_dl),
+            total=total_step,
+            desc=f'Epoch {epoch+1}/{num_epochs} (train)'
+        ):
+            # Move tensors to the configured device
             images = images.to(device)
             labels = labels.to(device)
 
-            #Forward pass
+            # Forward pass
             outputs = model(images)
             loss = criterion(outputs, labels)
 
-            #Backward and optimize
+            # Backward and optimize
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
             del images, labels, outputs
             torch.cuda.empty_cache()
 
-        print ('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, loss.item()))
+        print('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, loss.item()))
 
-        #Validation
+        # Validation
         with torch.no_grad():
             correct = 0
             total = 0
