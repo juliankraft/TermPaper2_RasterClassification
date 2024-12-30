@@ -1,4 +1,3 @@
-# %%
 import xarray as xr
 import numpy as np
 from tqdm import tqdm
@@ -14,11 +13,9 @@ from torchvision.models.resnet import BasicBlock, Bottleneck, conv1x1
 from typing import Callable, Type
 from torch import Tensor
 
-# %%
 dask.config.set(scheduler='synchronous')
 
 
-# %%
 def coarsen(da: xr.DataArray, factor: int = 10, reduction: str = 'mean') -> xr.DataArray:
     return getattr(da.coarsen(x=factor, y=factor, boundary='trim'), reduction)().compute()
 
@@ -27,7 +24,6 @@ def count_trainable_parameters(model: torch.nn.Module) -> int:
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
-# %%
 class BaseAugmentor(object):
     """Base augmentator class.
 
@@ -208,7 +204,6 @@ class AugmentorChain(object):
         return f'AugmentorChain(random_seed={self.random_seed}, augmentors=[{", ".join(autmentors_repr)}])'
 
 
-# %%
 class RSData(Dataset):
     def __init__(
             self,
@@ -299,7 +294,6 @@ class RSData(Dataset):
         return cutout.astype('float32'), label_sel.astype('int')
 
 
-# %%
 class ResNet(nn.Module):
     """ResNet model.
 
@@ -430,8 +424,8 @@ class ResNet(nn.Module):
 
 if __name__ == '__main__':
 
-    # %%
-    ac = AugmentorChain(
+    
+ac = AugmentorChain(
         random_seed=1,
         augmentors=[
             FlipAugmentor(),
@@ -459,14 +453,14 @@ if __name__ == '__main__':
 
     print('Creating dataloaders...')
 
-    # %%
-    train_dl = DataLoader(rsdata_train, batch_size=32, shuffle=True, num_workers=6)
+    
+train_dl = DataLoader(rsdata_train, batch_size=32, shuffle=True, num_workers=6)
     valid_dl = DataLoader(rsdata_valid, batch_size=32, shuffle=False, num_workers=6)
 
     print('Creating dataloaders done.')
 
-    # %%
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('device:', device)
     num_classes = 10
     num_epochs = 2
@@ -481,8 +475,8 @@ if __name__ == '__main__':
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, weight_decay=0.000, momentum=0.9)
 
-    # %%
-    total_step = len(train_dl)
+    
+total_step = len(train_dl)
 
     for epoch in range(num_epochs):
         for i, (images, labels) in tqdm(
