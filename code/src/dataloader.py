@@ -1,199 +1,12 @@
 import xarray as xr
 import numpy as np
-from tqdm import tqdm
-import dask
 from os import PathLike
 from pathlib import Path
+import lightning as L
 
-import torch
-from torch import nn
 from torch.utils.data import Dataset, DataLoader
 
-from torchvision.utils import _log_api_usage_once
-from torchvision.models.resnet import BasicBlock, Bottleneck, conv1x1
-
-from typing import Callable, Type
-from torch import Tensor
-
-
-class BaseAugmentor(object):
-    """Base augmentator class.
-
-    - Meant to be subclassed.
-    - Method `augment` must be overridden in subclas.
-    """
-    def set_seed(self, random_seed) -> None:
-        self.RS = np.random.RandomState(seed=random_seed)
-
-    def augment(self, cutout: np.ndarray) -> np.ndarray:
-        """Augment a 3D array.
-
-        Augments:
-            cutout: the input 3D array, shape (x, y, channels).
-
-        Returns:
-            Augmented array with same shape as cutout.
-
-        """
-
-        raise NotImplementedError(
-            'you must override this method in the subclass.'
-        )
-
-    def set_random_state(self, random_seed: int) -> None:
-        self.random_state = np.random.RandomState(seed=random_seed)
-
-    @property
-    def random_state(self) -> np.random.RandomState:
-        if not hasattr(self, '_random_state'):
-            raise AttributeError('attribute `random_state` is not set. Use `set_random_state`.')
-        else:
-            return self._random_state
-
-    @random_state.setter
-    def random_state(self, random_state: np.random.RandomState) -> None:
-        if not isinstance(random_state, np.random.RandomState):
-            raise TypeError(
-                f'`random_state` must be of type `np.random.RandomState`, is `{type(random_state).__name__}`.'
-            )
-        self._random_state = random_state
-
-
-class FlipAugmentor(BaseAugmentor):
-    """Random flip x and y dimensions."""
-    def augment(self, cutout: np.ndarray) -> np.ndarray:
-        """Augment a 3D array using random horizontal and vertical flipping.
-
-        Augments:
-            cutout: the input 3D array, shape (x, y, channels).
-
-        Returns:
-            Augmented array with same shape as cutout.
-
-        """
-
-        flip_vertical = self.random_state.randint(0, 2)
-        flip_horizontal = self.random_state.randint(0, 2)
-
-        flip_axes = []
-        if flip_vertical:
-            flip_axes.append(0)
-
-        if flip_horizontal:
-            flip_axes.append(1)
-
-        if len(flip_axes) > 0:
-            cutout = np.flip(cutout, axis=flip_axes)
-
-        return cutout
-
-    def __repr__(self) -> str:
-        return 'FlipAugmentor()'
-
-
-class RotateAugmentor(BaseAugmentor):
-    """Random rotate spatial dimensions."""
-    def augment(self, cutout: np.ndarray) -> np.ndarray:
-        """Augment a 3D array using random rotation flipping.
-
-        Augments:
-            cutout: the input 3D array, shape (x, y, channels).
-
-        Returns:
-            Augmented array with same shape as cutout.
-
-        """
-        num_rotate = self.random_state.randint(0, 4)
-
-        cutout = np.rot90(cutout, k=num_rotate, axes=(0, 1))
-
-        return cutout
-
-    def __repr__(self) -> str:
-        return 'RotateAugmentor()'
-
-
-class PixelNoiseAugmentor(BaseAugmentor):
-    """Random noise at pixel level."""
-    def __init__(self, scale: float) -> None:
-        """Init PixelNoiseAugmentor.
-
-        Args:
-            scale: scale of noise.
-        """
-        self.scale = scale
-
-    def augment(self, cutout: np.ndarray) -> np.ndarray:
-        """Augment a 3D array using pixel-level noise.
-
-        Augments:
-            cutout: the input 3D array, shape (x, y, channels).
-
-        Returns:
-            Augmented array with same shape as cutout.
-
-        """
-        random_noise = self.random_state.randn(*cutout.shape) * self.scale
-
-        return cutout + random_noise
-
-    def __repr__(self) -> str:
-        return f'PixelNoiseAugmentor(scale={self.scale})'
-
-
-class ChannelNoiseAugmentor(BaseAugmentor):
-    """Random noise at channel level."""
-    def __init__(self, scale: float) -> None:
-        """Init ChannelNoiseAugmentor.
-
-        Args:
-            scale: scale of noise.
-        """
-        self.scale = scale
-
-    def augment(self, cutout: np.ndarray) -> np.ndarray:
-        """Augment a 3D array using channel-level noise.
-
-        Augments:
-            cutout: the input 3D array, shape (x, y, channels).
-
-        Returns:
-            Augmented array with same shape as cutout.
-
-        """
-        random_noise = self.random_state.randn(cutout.shape[2]) * self.scale
-
-        return cutout + random_noise[np.newaxis, np.newaxis, ...]
-
-    def __repr__(self) -> str:
-        return f'ChannelNoiseAugmentor(scale={self.scale})'
-
-
-class AugmentorChain(object):
-    def __init__(self, random_seed: int, augmentors: list[BaseAugmentor] | None) -> None:
-        self.random_seed = random_seed
-        self.augmentors = augmentors
-
-        if self.augmentors is not None:
-            for augmentor in self.augmentors:
-                augmentor.set_random_state(random_seed)
-
-    def augment(self, cutout: np.ndarray) -> np.ndarray:
-
-        if self.augmentors is None:
-            return cutout
-
-        for augmentor in self.augmentors:
-            cutout = augmentor.augment(cutout)
-
-        return cutout
-
-    def __repr__(self) -> str:
-        if self.augmentors is None:
-            return 'AugmentorChain(augmentors=None)'
-
-        autmentors_repr = [str(augmentor) for augmentor in self.augmentors]
-        return f'AugmentorChain(random_seed={self.random_seed}, augmentors=[{", ".join(autmentors_repr)}])'
+from src.augmentors import AugmentorChain
 
 
 class RSData(Dataset):
@@ -289,3 +102,92 @@ class RSData(Dataset):
         ).values
 
         return cutout.astype('float32'), label_sel.astype('int')
+
+
+class RSDataModule(L.LightningDataModule):
+    def __init__(
+            self,
+            ds_path: str | PathLike,
+            train_area_ids: list[int],
+            valid_area_ids: list[int],
+            test_area_ids: list[int],
+            cutout_size: int,
+            batch_size: int,
+            augmentor_chain: AugmentorChain | None = None):
+
+        self.ds_path = Path(ds_path)
+        self.train_area_ids = train_area_ids
+        self.valid_area_ids = valid_area_ids
+        self.test_area_ids = test_area_ids
+        self.cutout_size = cutout_size
+        self.batch_size = batch_size
+        self.augmentor_chain = augmentor_chain
+
+        train_data = self.get_dataset(mode='init')
+        self.feature_stat_means = train_data.feature_stat_means
+        self.feature_stat_stds = train_data.feature_stat_stds
+
+        self.dataloader_args = {
+            'batch_size': self.batch_size
+        }
+
+    def get_dataset(self, mode: str) -> RSData:
+        if mode in ('train', 'init'):
+            mask_area_ids = self.train_area_ids
+            augmentor_chain = self.augmentor_chain
+        elif mode == 'train':
+            mask_area_ids = self.valid_area_ids
+            augmentor_chain = None
+        elif mode == 'train':
+            mask_area_ids = self.test_area_ids
+            augmentor_chain = None
+        elif mode == 'predict':
+            mask_area_ids = [0, 1, 2, 3, 4]
+            augmentor_chain = None
+        else:
+            raise ValueError(
+                f'`mode` must be one of \'init\', \'train\', \'valid\', \'test\', is \'{mode}\'.'
+            )
+
+        dataset = RSData(
+            ds_path=self.ds_path,
+            mask_area_ids=mask_area_ids,
+            cutout_size=self.cutout_size,
+            feature_stat_means=None if mode == 'init' else self.feature_stat_means,
+            feature_stat_stds=None if mode == 'init' else self.feature_stat_stds,
+            augmentor_chain=augmentor_chain
+        )
+
+        return dataset
+
+    def train_dataloader(self) -> DataLoader:
+        dataset = self.get_dataset(mode='train')
+        return DataLoader(
+            dataset,
+            shuffle=True,
+            **self.dataloader_args
+        )
+
+    def val_dataloader(self) -> DataLoader:
+        dataset = self.get_dataset(mode='valid')
+        return DataLoader(
+            dataset,
+            shuffle=False,
+            **self.dataloader_args
+        )
+
+    def test_dataloader(self) -> DataLoader:
+        dataset = self.get_dataset(mode='test')
+        return DataLoader(
+            dataset,
+            shuffle=False,
+            **self.dataloader_args
+        )
+
+    def predict_dataloader(self) -> DataLoader:
+        dataset = self.get_dataset(mode='predict')
+        return DataLoader(
+            dataset,
+            shuffle=False,
+            **self.dataloader_args
+        )
