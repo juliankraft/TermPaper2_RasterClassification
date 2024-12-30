@@ -424,8 +424,7 @@ class ResNet(nn.Module):
 
 if __name__ == '__main__':
 
-    
-ac = AugmentorChain(
+    ac = AugmentorChain(
         random_seed=1,
         augmentors=[
             FlipAugmentor(),
@@ -453,14 +452,12 @@ ac = AugmentorChain(
 
     print('Creating dataloaders...')
 
-    
-train_dl = DataLoader(rsdata_train, batch_size=32, shuffle=True, num_workers=6)
+    train_dl = DataLoader(rsdata_train, batch_size=32, shuffle=True, num_workers=6)
     valid_dl = DataLoader(rsdata_valid, batch_size=32, shuffle=False, num_workers=6)
 
     print('Creating dataloaders done.')
 
-    
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('device:', device)
     num_classes = 10
     num_epochs = 2
@@ -475,8 +472,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, weight_decay=0.000, momentum=0.9)
 
-    
-total_step = len(train_dl)
+    total_step = len(train_dl)
 
     for epoch in range(num_epochs):
         for i, (images, labels) in tqdm(
