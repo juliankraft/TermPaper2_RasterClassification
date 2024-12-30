@@ -2,6 +2,8 @@ import xarray as xr
 import numpy as np
 from tqdm import tqdm
 import dask
+from os import PathLike
+from pathlib import Path
 
 import torch
 from torch import nn
@@ -197,11 +199,11 @@ class AugmentorChain(object):
 class RSData(Dataset):
     def __init__(
             self,
-            ds_path: str,
-            mask_area: list[int] | int,
+            ds_path: str | PathLike,
+            mask_area_ids: list[int] | int,
             cutout_size: int = 21,
-            rs_means: xr.DataArray | None = None,
-            rs_stds: xr.DataArray | None = None,
+            feature_stat_means: xr.DataArray | None = None,
+            feature_stat_stds: xr.DataArray | None = None,
             augmentor_chain: AugmentorChain | None = None):
 
         super().__init__()
@@ -211,7 +213,7 @@ class RSData(Dataset):
         if cutout_size % 2 == 0:
             raise ValueError('`cutout_size` must be an odd integer.')
 
-        self.mask_values = self.get_mask_values(mask_area)
+        self.mask_values = self.get_mask_values(mask_area_ids)
 
         self.cutout_size = cutout_size
         self.offset = int(self.cutout_size // 2)
@@ -228,17 +230,17 @@ class RSData(Dataset):
 
         self.coords = np.argwhere(self.mask.values)
 
-        if (rs_means is None) != (rs_stds is None):
+        if (feature_stat_means is None) != (feature_stat_stds is None):
             raise ValueError(
-                'either pass both of `rs_means` and `rs_stds` or none.'
+                'either pass both of `feature_stat_means` and `feature_stat_stds` or none.'
             )
 
-        if rs_means is None:
-            rs_means = self.ds.rs.where(self.mask).mean(('x', 'y')).compute()
-            rs_stds = self.ds.rs.where(self.mask).std(('x', 'y')).compute()
+        if feature_stat_means is None:
+            feature_stat_means = self.ds.rs.where(self.mask).mean(('x', 'y')).compute()
+            feature_stat_stds = self.ds.rs.where(self.mask).std(('x', 'y')).compute()
 
-        self.rs_means = rs_means
-        self.rs_stds = rs_stds
+        self.feature_stat_means = feature_stat_means
+        self.feature_stat_stds = feature_stat_stds
 
         if augmentor_chain is None:
             self.augmentor_chain = AugmentorChain(random_seed=0, augmentors=[])
@@ -270,7 +272,7 @@ class RSData(Dataset):
         )
 
         # Standardize.
-        cutout = (cutout - self.rs_means) / self.rs_stds
+        cutout = (cutout - self.feature_stat_means) / self.feature_stat_stds
 
         # Transpose, make sure x and y are first dimensions.
         cutout = cutout.transpose('x', 'y', ...).values
