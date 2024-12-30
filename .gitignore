@@ -26,10 +26,10 @@ ArcGisProject/
 # Python
 __pycache__/
 *.pyc
+*.egg-info
 
 # VS code
 .vscode/
-
 
 # macOS
 .DS_Store
