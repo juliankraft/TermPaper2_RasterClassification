@@ -104,8 +104,8 @@ if __name__ == '__main__':
     tiff_path = '/cfs/earth/scratch/kraftjul/sa2/data/CombinedData_32signed/CombinedData32signed.tif'
     save_path = '/cfs/earth/scratch/kraftjul/sa2/data/combined.zarr'
 
-    if not os.path.exists(save_path):
-        raise FileNotFoundError(f'Tiff file {save_path} does not exist')
+    if not os.path.exists(tiff_path):
+        raise FileNotFoundError(f'Tiff file {tiff_path} does not exist')
 
     chunkwriter = ChunkWriter(
         tiff_path=tiff_path,
