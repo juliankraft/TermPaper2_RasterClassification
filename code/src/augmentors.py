@@ -155,6 +155,9 @@ class ChannelNoiseAugmentor(BaseAugmentor):
 
 
 class AugmentorChain(object):
+
+    AUGMENTORS = [FlipAugmentor, RotateAugmentor, PixelNoiseAugmentor, ChannelNoiseAugmentor]
+
     def __init__(self, random_seed: int, augmentors: list[BaseAugmentor] | None) -> None:
         self.random_seed = random_seed
         self.augmentors = augmentors
@@ -179,3 +182,38 @@ class AugmentorChain(object):
 
         autmentors_repr = [str(augmentor) for augmentor in self.augmentors]
         return f'AugmentorChain(random_seed={self.random_seed}, augmentors=[{", ".join(autmentors_repr)}])'
+
+    @classmethod
+    def from_args(
+            cls,
+            *augmentors,
+            random_seed,
+            **augmentor_kwargs) -> 'AugmentorChain':
+
+        existing_augmentors = {augmentor.__name__: augmentor for augmentor in cls.AUGMENTORS}
+
+        augmentor_list: list[BaseAugmentor] = []
+
+        for augmentor in augmentors:
+            augmentor_kwargs.update({augmentor: {}})
+
+        for augmentor_name, augmentor_args in augmentor_kwargs.items():
+            if augmentor_name not in existing_augmentors:
+                raise ValueError(
+                    f'augmentor \'{augmentor_name}\' does not exist, use one of {list(existing_augmentors.keys())}.'
+                )
+            else:
+                augmentor_class = existing_augmentors[augmentor_name]
+
+                try:
+                    augmentor = augmentor_class(**augmentor_args)
+
+                except Exception as e:
+                    raise RuntimeError(
+                        f'An error occured while initializing \'{augmentor_class.__name__}\' with args '
+                        f'{augmentor_args}.'
+                    )
+
+                augmentor_list.append(augmentor)
+
+        return cls(random_seed=random_seed, augmentors=augmentor_list)
