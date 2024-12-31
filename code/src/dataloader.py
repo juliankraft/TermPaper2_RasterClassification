@@ -137,10 +137,10 @@ class RSDataModule(L.LightningDataModule):
         if mode in ('train', 'init'):
             mask_area_ids = self.train_area_ids
             augmentor_chain = self.augmentor_chain
-        elif mode == 'train':
+        elif mode == 'valid':
             mask_area_ids = self.valid_area_ids
             augmentor_chain = None
-        elif mode == 'train':
+        elif mode == 'test':
             mask_area_ids = self.test_area_ids
             augmentor_chain = None
         elif mode == 'predict':
