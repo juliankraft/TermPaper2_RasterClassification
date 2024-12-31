@@ -5,8 +5,8 @@ from pathlib import Path
 import lightning as L
 
 from torch.utils.data import Dataset, DataLoader
-
 from src.augmentors import AugmentorChain
+from typing import Any
 
 
 class RSData(Dataset):
@@ -129,7 +129,7 @@ class RSDataModule(L.LightningDataModule):
         self.feature_stat_means = train_data.feature_stat_means
         self.feature_stat_stds = train_data.feature_stat_stds
 
-        self.dataloader_args = {
+        self.dataloader_args: dict[str, Any] = {
             'batch_size': self.batch_size
         }
 
@@ -159,6 +159,11 @@ class RSDataModule(L.LightningDataModule):
             feature_stat_stds=None if mode == 'init' else self.feature_stat_stds,
             augmentor_chain=augmentor_chain
         )
+
+        if mode == 'predict':
+            label = xr.full_like(dataset.ds['label'].load(), fill_value=255)
+
+            dataset.ds['label_pred'] = label
 
         return dataset
 
