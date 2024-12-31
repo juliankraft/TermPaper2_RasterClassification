@@ -113,6 +113,7 @@ class RSDataModule(L.LightningDataModule):
             test_area_ids: list[int],
             cutout_size: int,
             batch_size: int,
+            num_workers: int = 10,
             augmentor_chain: AugmentorChain | None = None):
 
         super().__init__()
@@ -123,6 +124,7 @@ class RSDataModule(L.LightningDataModule):
         self.test_area_ids = test_area_ids
         self.cutout_size = cutout_size
         self.batch_size = batch_size
+        self.num_workers = num_workers
         self.augmentor_chain = augmentor_chain
 
         train_data = self.get_dataset(mode='init')
@@ -130,7 +132,8 @@ class RSDataModule(L.LightningDataModule):
         self.feature_stat_stds = train_data.feature_stat_stds
 
         self.dataloader_args: dict[str, Any] = {
-            'batch_size': self.batch_size
+            'batch_size': self.batch_size,
+            'num_workers': self.num_workers
         }
 
     def get_dataset(self, mode: str) -> RSData:
