@@ -185,7 +185,7 @@ class LightningResNet(L.LightningModule):
 
         return loss
 
-    def prediction_step(self, batch, batch_idx) -> tuple[Tensor, dict[str, int]]:
+    def predict_step(self, batch, batch_idx) -> tuple[Tensor, dict[str, int]]:
         y_hat, _ = self.common_step(batch, mode='pred')
 
         xy_i = batch[2]
