@@ -33,7 +33,7 @@ class PredictionWriter(BasePredictionWriter):
             ds['label'].load().expand_dims(cls=np.arange(num_classes), axis=-1),
             dtype=np.float16,
             fill_value=np.nan)
-        self.da.name = 'label_pred'
+        self.da.name = 'label_prob'
 
     def write_on_batch_end(
             self,
@@ -55,8 +55,16 @@ class PredictionWriter(BasePredictionWriter):
             self.da[{'x': x, 'y': y}] = p
 
     def on_predict_end(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
+
+        da = self.da
+
+        cls_pred = xr.full_like(da.isel(cls=0), fill_value=np.nan)
+        cls_pred.values = np.argmax(da.values, axis=-1).astype('float16')
+        cls_pred = cls_pred.where(da.isel(cls=0).notnull())
+
         ds = xr.Dataset({
-            'label_pred': self.da,
+            'label_prob': da,
+            'label_pred': cls_pred,
             'training_mask': self.mask
         })
         save_path = self.make_predition_path(self.output_dir)
