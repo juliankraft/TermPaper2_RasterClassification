@@ -6,7 +6,7 @@ import lightning as L
 from torchvision.utils import _log_api_usage_once
 from torchvision.models.resnet import BasicBlock, Bottleneck, conv1x1
 
-from typing import Any, Callable, Type
+from typing import Callable, Type, Literal
 from torch import Tensor
 
 
@@ -158,8 +158,8 @@ class LightningResNet(L.LightningModule):
 
         self.criterion = nn.CrossEntropyLoss()
 
-    def common_step(self, batch, mode: str):
-        x, y = batch
+    def common_step(self, batch, mode: Literal['train', 'valid', 'test', 'pred']):
+        x, y, _ = batch
 
         y_hat = self.model(x)
 
@@ -185,10 +185,12 @@ class LightningResNet(L.LightningModule):
 
         return loss
 
-    def prediction_step(self, batch, batch_idx) -> Tensor:
+    def prediction_step(self, batch, batch_idx) -> tuple[Tensor, dict[str, int]]:
         y_hat, _ = self.common_step(batch, mode='pred')
 
-        return y_hat
+        xy_i = batch[2]
+
+        return y_hat, xy_i
 
     def configure_optimizers(self) -> Optimizer:
 
