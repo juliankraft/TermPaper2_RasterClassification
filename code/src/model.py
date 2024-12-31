@@ -162,10 +162,7 @@ class LightningResNet(L.LightningModule):
     def common_step(self, batch, mode: Literal['train', 'valid', 'test', 'pred']):
         x, y, _ = batch
 
-        # Softmax across 2nd dim (the classes).
-        y_hat = self.model(x).softmax(-1)
-
-        print(y_hat.shape)
+        y_hat = self.model(x)
 
         loss = self.criterion(y_hat, y)
 
@@ -192,6 +189,8 @@ class LightningResNet(L.LightningModule):
     def predict_step(self, batch, batch_idx) -> tuple[Tensor, dict[str, int]]:
         y_hat, _ = self.common_step(batch, mode='pred')
 
+        # Softmax across 2nd dim (the classes).
+        y_hat = y_hat.softmax(-1)
         xy_i = batch[2]
 
         return y_hat, xy_i
