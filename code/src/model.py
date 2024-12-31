@@ -152,6 +152,7 @@ class LightningResNet(L.LightningModule):
 
         self.save_hyperparameters()
 
+        self.num_classes = num_classes
         self.learning_rate = learning_rate
         self.weight_decay = weight_decay
         self.model = ResNet(inplanes=4, num_classes=num_classes)
