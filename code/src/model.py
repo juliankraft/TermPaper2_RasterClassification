@@ -1,21 +1,13 @@
-import xarray as xr
-import numpy as np
-from tqdm import tqdm
-import dask
-
 import torch
 from torch import nn
-from torch.utils.data import Dataset, DataLoader
+from torch.optim import Optimizer, AdamW
+import lightning as L
 
 from torchvision.utils import _log_api_usage_once
 from torchvision.models.resnet import BasicBlock, Bottleneck, conv1x1
 
-from typing import Callable, Type
+from typing import Any, Callable, Type
 from torch import Tensor
-
-from src.dataloader import RSDataModule
-
-dask.config.set(scheduler='synchronous')
 
 
 def count_trainable_parameters(model: torch.nn.Module) -> int:
@@ -31,7 +23,7 @@ class ResNet(nn.Module):
         self,
         block: Type[BasicBlock | Bottleneck] = BasicBlock,
         layers: list[int] = [2, 2, 2],
-        inplanes: int = 8,  # Changed to accept inplanes as argument.
+        inplanes: int = 4,  # Changed to accept inplanes as argument.
         num_classes: int = 9,
         zero_init_residual: bool = False,
         groups: int = 1,
@@ -148,3 +140,58 @@ class ResNet(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         return self._forward_impl(x)
+
+
+class LightningResNet(L.LightningModule):
+    def __init__(
+            self,
+            num_classes: int,
+            learning_rate: float = 0.001,
+            weight_decay: float = 0):
+        super().__init__()
+
+        self.save_hyperparameters()
+
+        self.learning_rate = learning_rate
+        self.weight_decay = weight_decay
+        self.model = ResNet(inplanes=4, num_classes=num_classes)
+
+        self.criterion = nn.CrossEntropyLoss()
+
+    def common_step(self, batch, mode: str):
+        x, y = batch
+
+        y_hat = self.model(x)
+
+        loss = self.criterion(y_hat, y)
+
+        if mode != 'pred':
+            self.log(f'{mode}_loss', value=loss)
+
+        return y_hat, loss
+
+    def training_step(self, batch, batch_idx) -> Tensor:
+        _, loss = self.common_step(batch, mode='train')
+
+        return loss
+
+    def validation_step(self, batch, batch_idx) -> Tensor:
+        _, loss = self.common_step(batch, mode='valid')
+
+        return loss
+
+    def test_step(self, batch, batch_idx) -> Tensor:
+        _, loss = self.common_step(batch, mode='test')
+
+        return loss
+
+    def prediction_step(self, batch, batch_idx) -> Tensor:
+        y_hat, _ = self.common_step(batch, mode='pred')
+
+        return y_hat
+
+    def configure_optimizers(self) -> Optimizer:
+
+        optimizer = AdamW(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
+
+        return optimizer
