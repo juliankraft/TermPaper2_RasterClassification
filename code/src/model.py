@@ -162,7 +162,10 @@ class LightningResNet(L.LightningModule):
     def common_step(self, batch, mode: Literal['train', 'valid', 'test', 'pred']):
         x, y, _ = batch
 
-        y_hat = self.model(x)
+        # Softmax across 2nd dim (the classes).
+        y_hat = self.model(x).softmax(-1)
+
+        print(y_hat.shape)
 
         loss = self.criterion(y_hat, y)
 
