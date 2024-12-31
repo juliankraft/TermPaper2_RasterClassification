@@ -76,7 +76,7 @@ class RSData(Dataset):
     def __len__(self) -> int:
         return len(self.coords)
 
-    def __getitem__(self, index: int):
+    def __getitem__(self, index: int) -> tuple[np.ndarray, np.ndarray, dict[str, int]]:
         x_i, y_i = self.coords[index]
 
         cutout = self.ds.rs.isel(
@@ -101,7 +101,7 @@ class RSData(Dataset):
             y=y_i,
         ).values
 
-        return cutout.astype('float32'), label_sel.astype('int')
+        return cutout.astype('float32'), label_sel.astype('int'), {'xi': x_i, 'yi': y_i}
 
 
 class RSDataModule(L.LightningDataModule):
