@@ -115,6 +115,8 @@ class RSDataModule(L.LightningDataModule):
             batch_size: int,
             augmentor_chain: AugmentorChain | None = None):
 
+        super().__init__()
+
         self.ds_path = Path(ds_path)
         self.train_area_ids = train_area_ids
         self.valid_area_ids = valid_area_ids
