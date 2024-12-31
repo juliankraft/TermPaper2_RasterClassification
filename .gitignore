@@ -2,6 +2,7 @@
 slurm_documentation
 data/
 ArcGisProject/
+runs/
 
 # PDF output - only the main file
 *.pdf
