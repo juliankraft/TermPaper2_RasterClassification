@@ -160,11 +160,6 @@ class RSDataModule(L.LightningDataModule):
             augmentor_chain=augmentor_chain
         )
 
-        if mode == 'predict':
-            label = xr.full_like(dataset.ds['label'].load(), fill_value=255)
-
-            dataset.ds['label_pred'] = label
-
         return dataset
 
     def train_dataloader(self) -> DataLoader:
