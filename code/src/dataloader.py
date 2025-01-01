@@ -35,6 +35,9 @@ class RSData(Dataset):
         if cutout_size % 2 == 0:
             raise ValueError('`cutout_size` must be an odd integer.')
 
+        if output_patch_size % 2 == 0:
+            raise ValueError('`output_patch_size` must be an odd integer.')
+
         self.mask_values = self.get_mask_values(mask_area_ids)
 
         self.cutout_size = cutout_size
@@ -49,6 +52,14 @@ class RSData(Dataset):
         mask[{'x': slice(-self.offset, None)}] = False
         mask[{'y': slice(None, self.offset)}] = False
         mask[{'y': slice(-self.offset, None)}] = False
+        
+        # Is it not supposed to look something like this?
+        # cut_margin = self.offset + self.output_offset
+
+        # mask[{'x': slice(None, cut_margin)}] = False
+        # mask[{'x': slice(-cut_margin, None)}] = False
+        # mask[{'y': slice(None, cut_margin)}] = False
+        # mask[{'y': slice(-cut_margin, None)}] = False
 
         self.mask = mask.compute()
 
