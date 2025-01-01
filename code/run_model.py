@@ -52,8 +52,11 @@ if __name__ == '__main__':
         '--num_workers', type=int, default=0,
         help='The number of dataloader workers.')
     parser.add_argument(
-        '--cutout_size', type=int, default=21,
-        help='Cutout size in pixels of the input feature image.')
+        '--cutout_size', type=int, default=51,
+        help='Cutout size in pixels of the input feature image. Must be an odd number.')
+    parser.add_argument(
+        '--output_patch_size', type=int, default=5,
+        help='Cutout size of the prediction patch. Must be an odd number.')
     parser.add_argument(
         '--learning_rate', type=float, default=0.01,
         help='Learning rate for the optimizer.')
@@ -86,11 +89,12 @@ if __name__ == '__main__':
         ac = None
 
     datamodule = RSDataModule(
-        ds_path='../data/combined.zarr',
+        ds_path='/Users/kraftb/Library/Mobile Documents/com~apple~CloudDocs/Work/sideprojects/TermPaper2_RasterClassification/data/Sample_CombinedData_32signed/combined.zarr',
         train_area_ids=[1, 2],
         valid_area_ids=[3],
         test_area_ids=[4],
         cutout_size=args.cutout_size,
+        output_patch_size=args.output_patch_size,
         augmentor_chain=ac,
         batch_size=args.batch_size,
         num_workers=args.num_workers
@@ -99,6 +103,7 @@ if __name__ == '__main__':
     # Model
     model = LightningResNet(
         num_classes=args.num_classes,
+        output_patch_size=args.output_patch_size,
         learning_rate=args.learning_rate,
         weight_decay=args.weight_decay
     )
