@@ -75,6 +75,9 @@ if __name__ == '__main__':
     parser.add_argument(
         '--dev_run', action='store_true',
         help='Runs 3 epochs with one batch of training and validation each.')
+    parser.add_argument(
+        '--sample_data', action='store_true',
+        help='Use only the small sample data set.')
 
     # Parse the arguments
     args = parser.parse_args()
@@ -88,8 +91,13 @@ if __name__ == '__main__':
     else:
         ac = None
 
+    if args.sample_data:
+        ds_path = '../data/sample_combined.zarr'
+    else:
+        ds_path = '../data/combined.zarr'
+
     datamodule = RSDataModule(
-        ds_path='/Users/kraftb/Library/Mobile Documents/com~apple~CloudDocs/Work/sideprojects/TermPaper2_RasterClassification/data/Sample_CombinedData_32signed/combined.zarr',
+        ds_path=ds_path,
         train_area_ids=[1, 2],
         valid_area_ids=[3],
         test_area_ids=[4],
@@ -113,7 +121,7 @@ if __name__ == '__main__':
     # For dev run, limit batches and max_epochs.
     dev_run_args = {
         'limit_train_batches': 1 if args.dev_run else 0.1,  # (float = fraction, int = num_batches)
-        'limit_val_batches': 1 if args.dev_run else 1.0,
+        'limit_val_batches': 1 if args.dev_run else 0.1,
         'limit_test_batches': 1 if args.dev_run else 1.0,
         'limit_predict_batches': 200 if args.dev_run else 1.0,
         'max_epochs': 3 if args.dev_run else 300,

@@ -166,7 +166,6 @@ class RSDataModule(L.LightningDataModule):
         self.feature_stat_stds = train_data.feature_stat_stds
 
         self.dataloader_args: dict[str, Any] = {
-            'batch_size': self.batch_size,
             'num_workers': self.num_workers
         }
 
@@ -205,6 +204,7 @@ class RSDataModule(L.LightningDataModule):
         dataset = self.get_dataset(mode='train')
         return DataLoader(
             dataset,
+            batch_size=self.batch_size,
             shuffle=True,
             **self.dataloader_args
         )
@@ -213,6 +213,7 @@ class RSDataModule(L.LightningDataModule):
         dataset = self.get_dataset(mode='valid')
         return DataLoader(
             dataset,
+            batch_size=self.batch_size * 2,
             shuffle=False,
             **self.dataloader_args
         )
@@ -221,6 +222,7 @@ class RSDataModule(L.LightningDataModule):
         dataset = self.get_dataset(mode='test')
         return DataLoader(
             dataset,
+            batch_size=self.batch_size * 2,
             shuffle=False,
             **self.dataloader_args
         )
@@ -229,6 +231,7 @@ class RSDataModule(L.LightningDataModule):
         dataset = self.get_dataset(mode='predict')
         return DataLoader(
             dataset,
+            batch_size=self.batch_size * 2,
             shuffle=False,
             **self.dataloader_args
         )
