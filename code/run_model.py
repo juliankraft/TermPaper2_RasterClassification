@@ -121,7 +121,7 @@ if __name__ == '__main__':
     # For dev run, limit batches and max_epochs.
     dev_run_args = {
         'limit_train_batches': 1 if args.dev_run else 0.1,  # (float = fraction, int = num_batches)
-        'limit_val_batches': 1 if args.dev_run else 0.1,
+        'limit_val_batches': 1 if args.dev_run else 1.0,
         'limit_test_batches': 1 if args.dev_run else 1.0,
         'limit_predict_batches': 200 if args.dev_run else 1.0,
         'max_epochs': 3 if args.dev_run else 300,
