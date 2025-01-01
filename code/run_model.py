@@ -86,7 +86,7 @@ if __name__ == '__main__':
         ac = None
 
     datamodule = RSDataModule(
-        ds_path='../data/Sample_CombinedData_32signed/combined.zarr',
+        ds_path='../data/sample_combined.zarr',
         train_area_ids=[1, 2],
         valid_area_ids=[3],
         test_area_ids=[4],
