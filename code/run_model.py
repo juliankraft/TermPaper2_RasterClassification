@@ -72,6 +72,9 @@ if __name__ == '__main__':
     parser.add_argument(
         '--dev_run', action='store_true',
         help='Runs 3 epochs with one batch of training and validation each.')
+    parser.add_argument(
+        '--sample_data', action='store_true',
+        help='Use only the small sample data set.')
 
     # Parse the arguments
     args = parser.parse_args()
@@ -85,8 +88,13 @@ if __name__ == '__main__':
     else:
         ac = None
 
+    if args.sample_data:
+        ds_path = '../data/sample_combined.zarr'
+    else:
+        ds_path = '../data/combined.zarr'
+
     datamodule = RSDataModule(
-        ds_path='../data/combined.zarr',
+        ds_path=ds_path,
         train_area_ids=[1, 2],
         valid_area_ids=[3],
         test_area_ids=[4],
