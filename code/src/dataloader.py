@@ -6,7 +6,14 @@ import lightning as L
 
 from torch.utils.data import Dataset, DataLoader
 from src.augmentors import AugmentorChain
-from typing import Any
+from typing import Any, TypedDict
+
+
+class ReturnType(TypedDict):
+    x: np.ndarray
+    y: np.ndarray
+    central_coord: dict[str, int]
+    patch_coord: dict[str, list[int]]
 
 
 class RSData(Dataset):
@@ -14,9 +21,11 @@ class RSData(Dataset):
             self,
             ds_path: str | PathLike,
             mask_area_ids: list[int] | int,
-            cutout_size: int = 21,
+            cutout_size: int = 41,
+            output_patch_size: int = 5,
             feature_stat_means: xr.DataArray | None = None,
             feature_stat_stds: xr.DataArray | None = None,
+            is_pred: bool = False,
             augmentor_chain: AugmentorChain | None = None):
 
         super().__init__()
@@ -30,18 +39,27 @@ class RSData(Dataset):
 
         self.cutout_size = cutout_size
         self.offset = int(self.cutout_size // 2)
+        self.output_patch_size = output_patch_size
+        self.output_offset = self.output_patch_size // 2
 
         mask = self.ds.mask.isin(self.mask_values).compute()
 
-        # Cut off borders from mask ny setting them to False.
+        # Cut off borders from mask by setting them to False.
         mask[{'x': slice(None, self.offset)}] = False
         mask[{'x': slice(-self.offset, None)}] = False
         mask[{'y': slice(None, self.offset)}] = False
         mask[{'y': slice(-self.offset, None)}] = False
 
-        self.mask = mask
+        self.mask = mask.compute()
 
-        self.coords = np.argwhere(self.mask.values)
+        if is_pred:
+            agg_mask = self.mask.coarsen(x=output_patch_size, y=output_patch_size, boundary='pad').any().compute()
+        else:
+            agg_mask = self.mask.coarsen(x=output_patch_size, y=output_patch_size, boundary='pad').all().compute()
+
+        self.agg_mask = agg_mask
+
+        self.coords = np.argwhere(self.agg_mask.values)
 
         if (feature_stat_means is None) != (feature_stat_stds is None):
             raise ValueError(
@@ -76,8 +94,11 @@ class RSData(Dataset):
     def __len__(self) -> int:
         return len(self.coords)
 
-    def __getitem__(self, index: int) -> tuple[np.ndarray, np.ndarray, dict[str, int]]:
-        x_i, y_i = self.coords[index]
+    def __getitem__(self, index: int) -> ReturnType:
+        agg_x_i, agg_y_i = self.coords[index]
+
+        x_i = agg_x_i * self.output_patch_size + self.output_offset
+        y_i = agg_y_i * self.output_patch_size + self.output_offset
 
         cutout = self.ds.rs.isel(
             x=slice(x_i - self.offset, x_i + self.offset + 1),
@@ -96,12 +117,23 @@ class RSData(Dataset):
         # Put channel on first dimension, from (x, y, c) to (c, x, y).
         cutout = cutout.transpose(2, 0, 1)
 
+        x_block_from: int = x_i - self.output_offset
+        x_block_to: int = x_i + self.output_offset + 1
+        y_block_from: int = y_i - self.output_offset
+        y_block_to: int = y_i + self.output_offset + 1
         label_sel = self.ds.label.isel(
-            x=x_i,
-            y=y_i,
-        ).values
+            x=slice(x_block_from, x_block_to),
+            y=slice(y_block_from, y_block_to),
+        )
 
-        return cutout.astype('float32'), label_sel.astype('int'), {'xi': x_i, 'yi': y_i}
+        label_sel = label_sel.transpose('x', 'y', ...).values
+
+        return {
+            'x': cutout.astype('float32'),
+            'y': label_sel.astype('int'),
+            'central_coord': {'xi': x_i, 'yi': y_i},
+            'patch_coord': {'xi': [x_block_from, x_block_to], 'yi': [y_block_from, y_block_to]},
+        }
 
 
 class RSDataModule(L.LightningDataModule):
@@ -112,6 +144,7 @@ class RSDataModule(L.LightningDataModule):
             valid_area_ids: list[int],
             test_area_ids: list[int],
             cutout_size: int,
+            output_patch_size: int,
             batch_size: int,
             num_workers: int = 10,
             augmentor_chain: AugmentorChain | None = None):
@@ -123,6 +156,7 @@ class RSDataModule(L.LightningDataModule):
         self.valid_area_ids = valid_area_ids
         self.test_area_ids = test_area_ids
         self.cutout_size = cutout_size
+        self.output_patch_size = output_patch_size
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.augmentor_chain = augmentor_chain
@@ -158,8 +192,10 @@ class RSDataModule(L.LightningDataModule):
             ds_path=self.ds_path,
             mask_area_ids=mask_area_ids,
             cutout_size=self.cutout_size,
+            output_patch_size=self.output_patch_size,
             feature_stat_means=None if mode == 'init' else self.feature_stat_means,
             feature_stat_stds=None if mode == 'init' else self.feature_stat_stds,
+            is_pred=True if mode == 'pred' else False,
             augmentor_chain=augmentor_chain
         )
 

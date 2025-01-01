@@ -25,6 +25,7 @@ class ResNet(nn.Module):
         layers: list[int] = [2, 2, 2],
         inplanes: int = 4,  # Changed to accept inplanes as argument.
         num_classes: int = 9,
+        output_patch_size: int = 1,
         zero_init_residual: bool = False,
         groups: int = 1,
         width_per_group: int = 64,
@@ -38,6 +39,12 @@ class ResNet(nn.Module):
         self._norm_layer = norm_layer
 
         self.inplanes = inplanes
+        self.num_classes = num_classes
+        if output_patch_size % 2 != 1:
+            raise ValueError(
+                f'`outout_block_size` must be an odd number, is {output_patch_size}.'
+            )
+        self.output_patch_size = output_patch_size
         self.dilation = 1
         if replace_stride_with_dilation is None:
             # each element in the tuple indicates if we should replace
@@ -57,10 +64,9 @@ class ResNet(nn.Module):
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1 = self._make_layer(block, inplanes, layers[0])
         self.layer2 = self._make_layer(block, inplanes * 2, layers[1], stride=2, dilate=replace_stride_with_dilation[0])
-        self.layer3 = self._make_layer(block, inplanes * 4, layers[2], stride=2, dilate=replace_stride_with_dilation[1])
-        # self.layer4 = self._make_layer(block, 512, layers[3], stride=2, dilate=replace_stride_with_dilation[2])
-        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(self.inplanes * block.expansion, num_classes)
+        self.layer3 = self._make_layer(block, inplanes * 4, layers[2], stride=1, dilate=replace_stride_with_dilation[1])
+        self.avgpool = nn.AdaptiveAvgPool2d((output_patch_size, output_patch_size))
+        self.fc = nn.Conv2d(self.inplanes * block.expansion, num_classes, kernel_size=1)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -130,11 +136,21 @@ class ResNet(nn.Module):
         x = self.layer1(x)
         x = self.layer2(x)
         x = self.layer3(x)
-        # x = self.layer4(x)
+
+        if x.shape[-1] < self.output_patch_size:
+            raise AssertionError(
+                f'the output spatial dimension of the tensor after ResNet layers ({x.shape[-2:]}) is smaller than the '
+                f'`output_patch_size` ({self.output_patch_size}). Increase the input spatial dimension or reduce '
+                f'`output_patch_size` to {x.shape[-1]}.'
+            )
 
         x = self.avgpool(x)
-        x = torch.flatten(x, 1)
+
         x = self.fc(x)
+
+        # Reshape from (channels, classes, output_patch_size, output_patch_size)
+        # to (channels, output_patch_size, output_patch_size, classes)
+        x = x.permute(0, 2, 3, 1)
 
         return x
 
@@ -146,6 +162,7 @@ class LightningResNet(L.LightningModule):
     def __init__(
             self,
             num_classes: int,
+            output_patch_size: int,
             learning_rate: float = 0.001,
             weight_decay: float = 0):
         super().__init__()
@@ -155,17 +172,18 @@ class LightningResNet(L.LightningModule):
         self.num_classes = num_classes
         self.learning_rate = learning_rate
         self.weight_decay = weight_decay
-        self.model = ResNet(inplanes=4, num_classes=num_classes)
+        self.model = ResNet(inplanes=4, num_classes=num_classes, output_patch_size=output_patch_size)
 
         self.criterion = nn.CrossEntropyLoss()
 
     def common_step(self, batch, mode: Literal['train', 'valid', 'test']):
-        x, y, _ = batch
 
-        y_hat = self.model(x)
+        # (channels, output_patch_size, output_patch_size, classes)
+        y_hat = self.model(batch['x'])
 
-        loss = self.criterion(y_hat, y)
-        
+        # Merge channels, output_patch_size, output_patch_size into single dimension.
+        loss = self.criterion(y_hat.flatten(0, 2), batch['y'].flatten(0, 2))
+
         self.log(f'{mode}_loss', value=loss)
 
         return y_hat, loss
@@ -186,12 +204,13 @@ class LightningResNet(L.LightningModule):
         return loss
 
     def predict_step(self, batch, batch_idx) -> tuple[Tensor, dict[str, int]]:
-        x, _, xy_i = batch
 
         # Softmax across 2nd dim (the classes).
-        y_hat = self.model(x).softmax(-1)
+        y_hat = self.model(batch['x']).softmax(-1)
 
-        return y_hat, xy_i
+        del batch['x']
+
+        return y_hat, batch
 
     def configure_optimizers(self) -> Optimizer:
 

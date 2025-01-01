@@ -3,6 +3,7 @@ import lightning as L
 from lightning.pytorch.callbacks import BasePredictionWriter
 from pathlib import Path
 import numpy as np
+import torch
 import os
 
 from torch.utils.data import DataLoader
@@ -45,14 +46,14 @@ class PredictionWriter(BasePredictionWriter):
             batch_idx: int,
             dataloader_idx: int) -> None:
 
-        predicted_label, xy_i = prediction
+        predicted_label, batch = prediction
 
         predicted_label = predicted_label.cpu()
-        xi = xy_i['xi'].cpu()
-        yi = xy_i['yi'].cpu()
+        xi_patch: Tensor = torch.stack(batch['patch_coord']['xi'], -1).cpu()
+        yi_patch: Tensor = torch.stack(batch['patch_coord']['yi'], -1).cpu()
 
-        for p, x, y in zip(predicted_label, xi, yi):
-            self.da[{'x': x, 'y': y}] = p
+        for p, x, y in zip(predicted_label, xi_patch, yi_patch):
+            self.da[{'x': slice(*x), 'y': slice(*y)}] = p
 
     def on_predict_end(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
 
