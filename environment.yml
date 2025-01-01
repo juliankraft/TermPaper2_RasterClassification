@@ -4,7 +4,7 @@ channels:
   - pytorch
   - nvidia
   - defaults
-  
+
 dependencies:
   - xarray
   - dask
@@ -21,5 +21,5 @@ dependencies:
   - torchvision
   - torchaudio
   - pytorch-cuda=11.8
-  - pytorch-lightning
+  - lightning
   - pip
