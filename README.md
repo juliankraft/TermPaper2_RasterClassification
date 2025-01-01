@@ -45,7 +45,7 @@ pip install -e .
 To run an experiment run from the `./code` directory:
 
 ```bash
-python run_model.py --device='gpu' -o --dev_run --batch_size=50
+python run_model.py --device=gpu -o --dev_run --batch_size=10
 ```
 
 Available arguments are:
