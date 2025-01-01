@@ -159,15 +159,14 @@ class LightningResNet(L.LightningModule):
 
         self.criterion = nn.CrossEntropyLoss()
 
-    def common_step(self, batch, mode: Literal['train', 'valid', 'test', 'pred']):
+    def common_step(self, batch, mode: Literal['train', 'valid', 'test']):
         x, y, _ = batch
 
         y_hat = self.model(x)
 
         loss = self.criterion(y_hat, y)
-
-        if mode != 'pred':
-            self.log(f'{mode}_loss', value=loss)
+        
+        self.log(f'{mode}_loss', value=loss)
 
         return y_hat, loss
 
@@ -187,11 +186,10 @@ class LightningResNet(L.LightningModule):
         return loss
 
     def predict_step(self, batch, batch_idx) -> tuple[Tensor, dict[str, int]]:
-        y_hat, _ = self.common_step(batch, mode='pred')
+        x, _, xy_i = batch
 
         # Softmax across 2nd dim (the classes).
-        y_hat = y_hat.softmax(-1)
-        xy_i = batch[2]
+        y_hat = self.model(x).softmax(-1)
 
         return y_hat, xy_i
 
