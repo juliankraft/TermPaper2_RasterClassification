@@ -3,10 +3,10 @@ from typing import Tuple
 
 
 class BaseAugmentor(object):
-    """Base augmentator class.
+    """Base augmentor class.
 
     - Meant to be subclassed.
-    - Method `augment` must be overridden in subclas.
+    - Method `augment` must be overridden in subclass.
     """
     def set_seed(self, random_seed) -> None:
         self.RS = np.random.RandomState(seed=random_seed)
