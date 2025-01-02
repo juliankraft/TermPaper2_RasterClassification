@@ -210,7 +210,7 @@ class AugmentorChain(object):
 
                 except Exception as e:
                     raise RuntimeError(
-                        f'An error occured while initializing \'{augmentor_class.__name__}\' with args '
+                        f'Error \'{e}\' occured while initializing \'{augmentor_class.__name__}\' with args '
                         f'{augmentor_args}.'
                     )
 
