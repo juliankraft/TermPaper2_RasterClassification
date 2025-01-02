@@ -45,7 +45,11 @@ class RSData(Dataset):
         self.output_patch_size = output_patch_size
         self.output_offset = self.output_patch_size // 2
 
+        # Select valid pixels.
         mask = self.ds.mask.isin(self.mask_values).compute()
+        # Exclude pixels with no label.
+        if not is_pred:
+            mask *= (self.ds.label != 255).values
 
         # Cut off borders from mask by setting them to False.
         mask[{'x': slice(None, self.offset)}] = False
