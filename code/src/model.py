@@ -176,30 +176,54 @@ class LightningResNet(L.LightningModule):
 
         self.criterion = nn.CrossEntropyLoss()
 
+    def calculate_accuracy(self, y_hat: Tensor, y: Tensor) -> float:
+        y_hat_classes = y_hat.argmax(dim=-1)
+        correct = (y_hat_classes == y).sum()
+        total = y.numel()
+        return correct / total
+
     def common_step(self, batch, mode: Literal['train', 'valid', 'test']):
 
         # (channels, output_patch_size, output_patch_size, classes)
         y_hat = self.model(batch['x'])
+        y = batch['y']
+
+        y_hat_flat = y_hat.flatten(0, 2)
+        y_flat = y.flatten(0, 2)
 
         # Merge channels, output_patch_size, output_patch_size into single dimension.
-        loss = self.criterion(y_hat.flatten(0, 2), batch['y'].flatten(0, 2))
+        loss = self.criterion(y_hat_flat, y_flat)
 
-        self.log(f'{mode}_loss', value=loss)
+        accuracy = self.calculate_accuracy(y_hat_flat, y_flat)
+
+        if mode == 'train':
+            logger_args = {
+                'logger': True,
+                'on_step': True,
+                'on_epoch': True
+            }
+        else:
+            logger_args = {}
+
+        self.log_dict({
+            f'{mode}_loss': loss,
+            f'{mode}_acc': accuracy
+        }, **logger_args)
 
         return y_hat, loss
 
     def training_step(self, batch, batch_idx) -> Tensor:
-        _, loss = self.common_step(batch, mode='train')
+        _, loss, = self.common_step(batch, mode='train')
 
         return loss
 
     def validation_step(self, batch, batch_idx) -> Tensor:
-        _, loss = self.common_step(batch, mode='valid')
+        _, loss, = self.common_step(batch, mode='valid')
 
         return loss
 
     def test_step(self, batch, batch_idx) -> Tensor:
-        _, loss = self.common_step(batch, mode='test')
+        _, loss, = self.common_step(batch, mode='test')
 
         return loss
 
