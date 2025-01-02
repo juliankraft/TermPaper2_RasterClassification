@@ -175,7 +175,8 @@ class RSDataModule(L.LightningDataModule):
         self.feature_stat_stds = train_data.feature_stat_stds
 
         self.dataloader_args: dict[str, Any] = {
-            'num_workers': self.num_workers
+            'num_workers': self.num_workers,
+            'persistent_workers': True
         }
 
     def get_dataset(self, mode: str) -> RSData:
