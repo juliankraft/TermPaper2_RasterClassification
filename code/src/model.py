@@ -196,19 +196,10 @@ class LightningResNet(L.LightningModule):
 
         accuracy = self.calculate_accuracy(y_hat_flat, y_flat)
 
-        if mode == 'train':
-            logger_args = {
-                'logger': True,
-                'on_step': True,
-                'on_epoch': True
-            }
-        else:
-            logger_args = {}
-
         self.log_dict({
             f'{mode}_loss': loss,
             f'{mode}_acc': accuracy
-        }, **logger_args)
+        }, logger=True, on_step=(mode == 'train'), on_epoch=True)
 
         return y_hat, loss
 
