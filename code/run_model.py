@@ -5,7 +5,7 @@ from pathlib import Path
 from argparse import ArgumentParser, Namespace
 import lightning as L
 from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
-from lightning.pytorch.loggers import TensorBoardLogger
+from lightning.pytorch.loggers import TensorBoardLogger, CSVLogger
 from typing import cast
 
 from src.dataloader import RSDataModule
@@ -118,6 +118,18 @@ if __name__ == '__main__':
 
     logdir = make_dir_from_args(base_path='../runs', args=args)
 
+    tb_logger = TensorBoardLogger(
+        save_dir=logdir,
+        name='',
+        version='',
+    )
+
+    csv_logger = CSVLogger(
+        save_dir=logdir,
+        name='',
+        version='',
+    )
+
     # For dev run, limit batches and max_epochs.
     dev_run_args = {
         'limit_train_batches': 1 if args.dev_run else 0.1,  # (float = fraction, int = num_batches)
@@ -125,7 +137,7 @@ if __name__ == '__main__':
         'limit_test_batches': 1 if args.dev_run else 1.0,
         'limit_predict_batches': 200 if args.dev_run else 1.0,
         'max_epochs': 3 if args.dev_run else 300,
-        'log_every_n_steps': 1 if args.dev_run else 10,
+        # 'log_every_n_steps': 1 if args.dev_run else 10,
     }
 
     trainer = L.Trainer(
@@ -143,10 +155,8 @@ if __name__ == '__main__':
                 patience=args.patience),
             PredictionWriter(output_dir=logdir),
         ],
-        logger=TensorBoardLogger(
-            save_dir=logdir,
-            version='',
-            name=''),
+        logger=[tb_logger, csv_logger],
+        log_every_n_steps=1,
         **dev_run_args
     )
 
