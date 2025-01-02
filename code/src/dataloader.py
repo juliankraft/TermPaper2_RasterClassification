@@ -103,6 +103,7 @@ class RSData(Dataset):
         x_i = agg_x_i * self.output_patch_size + self.output_offset
         y_i = agg_y_i * self.output_patch_size + self.output_offset
 
+        # selecting the cutout.
         cutout = self.ds.rs.isel(
             x=slice(x_i - self.offset, x_i + self.offset + 1),
             y=slice(y_i - self.offset, y_i + self.offset + 1),
@@ -114,12 +115,7 @@ class RSData(Dataset):
         # Transpose, make sure x and y are first dimensions.
         cutout = cutout.transpose('x', 'y', ...).values
 
-        # Augment.
-        cutout = self.augmentor_chain.augment(cutout)
-
-        # Put channel on first dimension, from (x, y, c) to (c, x, y).
-        cutout = cutout.transpose(2, 0, 1)
-
+        # selecting the labels.
         x_block_from: int = x_i - self.output_offset
         x_block_to: int = x_i + self.output_offset + 1
         y_block_from: int = y_i - self.output_offset
@@ -130,6 +126,12 @@ class RSData(Dataset):
         )
 
         label_sel = label_sel.transpose('x', 'y', ...).values
+
+        # Augment.
+        cutout, label_sel = self.augmentor_chain.augment(cutout, label_sel)
+
+        # Put channel on first dimension, from (x, y, c) to (c, x, y).
+        cutout = cutout.transpose(2, 0, 1)
 
         return {
             'x': cutout.astype('float32'),

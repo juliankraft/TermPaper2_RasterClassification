@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Tuple
 
 
 class BaseAugmentor(object):
@@ -10,7 +11,7 @@ class BaseAugmentor(object):
     def set_seed(self, random_seed) -> None:
         self.RS = np.random.RandomState(seed=random_seed)
 
-    def augment(self, cutout: np.ndarray) -> np.ndarray:
+    def augment(self, cutout: np.ndarray, labels: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """Augment a 3D array.
 
         Augments:
@@ -46,7 +47,7 @@ class BaseAugmentor(object):
 
 class FlipAugmentor(BaseAugmentor):
     """Random flip x and y dimensions."""
-    def augment(self, cutout: np.ndarray) -> np.ndarray:
+    def augment(self, cutout: np.ndarray, labels: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """Augment a 3D array using random horizontal and vertical flipping.
 
         Augments:
@@ -69,8 +70,9 @@ class FlipAugmentor(BaseAugmentor):
 
         if len(flip_axes) > 0:
             cutout = np.flip(cutout, axis=flip_axes)
+            labels = np.flip(labels, axis=flip_axes)
 
-        return cutout
+        return cutout, labels
 
     def __repr__(self) -> str:
         return 'FlipAugmentor()'
@@ -78,7 +80,7 @@ class FlipAugmentor(BaseAugmentor):
 
 class RotateAugmentor(BaseAugmentor):
     """Random rotate spatial dimensions."""
-    def augment(self, cutout: np.ndarray) -> np.ndarray:
+    def augment(self, cutout: np.ndarray, labels: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """Augment a 3D array using random rotation flipping.
 
         Augments:
@@ -91,8 +93,9 @@ class RotateAugmentor(BaseAugmentor):
         num_rotate = self.random_state.randint(0, 4)
 
         cutout = np.rot90(cutout, k=num_rotate, axes=(0, 1))
+        labels = np.rot90(labels, k=num_rotate, axes=(0, 1))
 
-        return cutout
+        return cutout, labels
 
     def __repr__(self) -> str:
         return 'RotateAugmentor()'
@@ -108,7 +111,7 @@ class PixelNoiseAugmentor(BaseAugmentor):
         """
         self.scale = scale
 
-    def augment(self, cutout: np.ndarray) -> np.ndarray:
+    def augment(self, cutout: np.ndarray, labels: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """Augment a 3D array using pixel-level noise.
 
         Augments:
@@ -120,7 +123,7 @@ class PixelNoiseAugmentor(BaseAugmentor):
         """
         random_noise = self.random_state.randn(*cutout.shape) * self.scale
 
-        return cutout + random_noise
+        return cutout + random_noise, labels
 
     def __repr__(self) -> str:
         return f'PixelNoiseAugmentor(scale={self.scale})'
@@ -136,7 +139,7 @@ class ChannelNoiseAugmentor(BaseAugmentor):
         """
         self.scale = scale
 
-    def augment(self, cutout: np.ndarray) -> np.ndarray:
+    def augment(self, cutout: np.ndarray, labels: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """Augment a 3D array using channel-level noise.
 
         Augments:
@@ -148,7 +151,7 @@ class ChannelNoiseAugmentor(BaseAugmentor):
         """
         random_noise = self.random_state.randn(cutout.shape[2]) * self.scale
 
-        return cutout + random_noise[np.newaxis, np.newaxis, ...]
+        return cutout + random_noise[np.newaxis, np.newaxis, ...], labels
 
     def __repr__(self) -> str:
         return f'ChannelNoiseAugmentor(scale={self.scale})'
@@ -166,15 +169,15 @@ class AugmentorChain(object):
             for augmentor in self.augmentors:
                 augmentor.set_random_state(random_seed)
 
-    def augment(self, cutout: np.ndarray) -> np.ndarray:
+    def augment(self, cutout: np.ndarray, labels: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
 
         if self.augmentors is None:
-            return cutout
+            return cutout, labels
 
         for augmentor in self.augmentors:
-            cutout = augmentor.augment(cutout)
+            cutout, labels = augmentor.augment(cutout, labels)
 
-        return cutout
+        return cutout, labels
 
     def __repr__(self) -> str:
         if self.augmentors is None:
