@@ -1,6 +1,7 @@
 
 import os
 import shutil
+import yaml
 from pathlib import Path
 from argparse import ArgumentParser, Namespace
 import lightning as L
@@ -27,8 +28,8 @@ def make_dir_from_args(base_path: Path | str, args: Namespace) -> Path:
                 'Base directory exists, but overwrite is False. '
                 f'Use `-o` or `--overwrite` to delete existing runs in `{path}`.'
             )
-    else:
-        os.makedirs(path)
+
+    os.makedirs(path)
 
     return path
 
@@ -116,16 +117,16 @@ if __name__ == '__main__':
         weight_decay=args.weight_decay
     )
 
-    logdir = make_dir_from_args(base_path='../runs', args=args)
+    log_dir = make_dir_from_args(base_path='../runs', args=args)
 
     tb_logger = TensorBoardLogger(
-        save_dir=logdir,
+        save_dir=log_dir,
         name='',
         version='',
     )
 
     csv_logger = CSVLogger(
-        save_dir=logdir,
+        save_dir=log_dir,
         name='',
         version='',
     )
@@ -140,8 +141,18 @@ if __name__ == '__main__':
         # 'log_every_n_steps': 1 if args.dev_run else 10,
     }
 
+    # save all configurations to a yaml file
+    parser_args_dict = vars(args)
+    config = {
+        'parser_args': parser_args_dict,
+        'dev_run_args': dev_run_args
+    }
+
+    with open(log_dir / 'config.yml', 'w') as f:
+        yaml.dump(config, f, default_flow_style=False)
+
     trainer = L.Trainer(
-        default_root_dir=logdir,
+        default_root_dir=log_dir,
         accelerator=args.device,
         callbacks=[
             ModelCheckpoint(
@@ -153,7 +164,7 @@ if __name__ == '__main__':
             EarlyStopping(
                 monitor='valid_loss',
                 patience=args.patience),
-            PredictionWriter(output_dir=logdir),
+            PredictionWriter(output_dir=log_dir),
         ],
         logger=[tb_logger, csv_logger],
         log_every_n_steps=1,
