@@ -96,7 +96,6 @@ class RSData(Dataset):
         label_count = label_count.reindex({label_count.dims[0]: list(range(0, num_classes))}, fill_value=0)
         rev_weights = label_count / ds['label'].size
         weights = 1 - rev_weights
-        # convert to tensor
         weights_tensor = torch.tensor(weights.values, dtype=torch.float32)
 
         return weights_tensor
@@ -198,7 +197,7 @@ class RSDataModule(L.LightningDataModule):
             'persistent_workers': True
         }
 
-    def get_feature_weights(self) -> xr.DataArray:
+    def get_feature_weights(self) -> torch.Tensor:
         return self.feature_weights
 
     def get_dataset(self, mode: str) -> RSData:
