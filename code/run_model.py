@@ -79,6 +79,9 @@ if __name__ == '__main__':
     parser.add_argument(
         '--sample_data', action='store_true',
         help='Use only the small sample data set.')
+    parser.add_argument(
+        '--use_class_weights', action='store_true',
+        help='Apply class weights to the loss function.')
 
     # Parse the arguments
     args = parser.parse_args()
@@ -99,6 +102,7 @@ if __name__ == '__main__':
 
     datamodule = RSDataModule(
         ds_path=ds_path,
+        num_classes=args.num_classes,
         train_area_ids=[1, 2],
         valid_area_ids=[3],
         test_area_ids=[4],
@@ -114,7 +118,9 @@ if __name__ == '__main__':
         num_classes=args.num_classes,
         output_patch_size=args.output_patch_size,
         learning_rate=args.learning_rate,
-        weight_decay=args.weight_decay
+        weight_decay=args.weight_decay,
+        use_class_weights=args.use_class_weights,
+        feature_weights=datamodule.get_feature_weights()
     )
 
     log_dir = make_dir_from_args(base_path='../runs', args=args)

@@ -1,5 +1,6 @@
 import xarray as xr
 import numpy as np
+import torch
 from os import PathLike
 from pathlib import Path
 import lightning as L
@@ -20,17 +21,20 @@ class RSData(Dataset):
     def __init__(
             self,
             ds_path: str | PathLike,
+            num_classes: int,
             mask_area_ids: list[int] | int,
             cutout_size: int = 41,
             output_patch_size: int = 5,
             feature_stat_means: xr.DataArray | None = None,
             feature_stat_stds: xr.DataArray | None = None,
+            feature_weights: torch.Tensor | None = None,
             is_pred: bool = False,
             augmentor_chain: AugmentorChain | None = None):
 
         super().__init__()
 
         self.ds = xr.open_zarr(ds_path)
+        self.num_classes = num_classes
 
         if cutout_size % 2 == 0:
             raise ValueError('`cutout_size` must be an odd integer.')
@@ -68,22 +72,34 @@ class RSData(Dataset):
 
         self.coords = np.argwhere(self.agg_mask.values)
 
-        if (feature_stat_means is None) != (feature_stat_stds is None):
+        if len(set([feature_stat_means is None, feature_stat_stds is None, feature_weights is None])) != 1:
             raise ValueError(
-                'either pass both of `feature_stat_means` and `feature_stat_stds` or none.'
+                'either pass all of `feature_stat_means`, `feature_stat_stds`, and `feature_weights` or none.'
             )
 
         if feature_stat_means is None:
             feature_stat_means = self.ds.rs.where(self.mask).mean(('x', 'y')).compute()
             feature_stat_stds = self.ds.rs.where(self.mask).std(('x', 'y')).compute()
+            feature_weights = self.calculating_feature_weights(self.ds.where(self.mask), self.num_classes)
 
         self.feature_stat_means = feature_stat_means
         self.feature_stat_stds = feature_stat_stds
+        self.feature_weights = feature_weights
 
         if augmentor_chain is None:
             self.augmentor_chain = AugmentorChain(random_seed=0, augmentors=[])
         else:
             self.augmentor_chain = augmentor_chain
+
+    def calculating_feature_weights(self, ds: xr.Dataset, num_classes: int) -> torch.Tensor:
+        label_count = ds['label'].groupby(ds['label']).count().compute()
+        label_count = label_count.reindex({label_count.dims[0]: list(range(0, num_classes))}, fill_value=0)
+        rev_weights = label_count / ds['label'].size
+        weights = 1 - rev_weights
+        # convert to tensor
+        weights_tensor = torch.tensor(weights.values, dtype=torch.float32)
+
+        return weights_tensor
 
     def get_mask_values(self, mask_area: list[int] | int) -> np.ndarray:
         mask_area_ = np.array([mask_area] if isinstance(mask_area, int) else mask_area)
@@ -149,6 +165,7 @@ class RSDataModule(L.LightningDataModule):
     def __init__(
             self,
             ds_path: str | PathLike,
+            num_classes: int,
             train_area_ids: list[int],
             valid_area_ids: list[int],
             test_area_ids: list[int],
@@ -161,6 +178,7 @@ class RSDataModule(L.LightningDataModule):
         super().__init__()
 
         self.ds_path = Path(ds_path)
+        self.num_classes = num_classes
         self.train_area_ids = train_area_ids
         self.valid_area_ids = valid_area_ids
         self.test_area_ids = test_area_ids
@@ -173,11 +191,15 @@ class RSDataModule(L.LightningDataModule):
         train_data = self.get_dataset(mode='init')
         self.feature_stat_means = train_data.feature_stat_means
         self.feature_stat_stds = train_data.feature_stat_stds
+        self.feature_weights = train_data.feature_weights
 
         self.dataloader_args: dict[str, Any] = {
             'num_workers': self.num_workers,
             'persistent_workers': True
         }
+
+    def get_feature_weights(self) -> xr.DataArray:
+        return self.feature_weights
 
     def get_dataset(self, mode: str) -> RSData:
         if mode in ('train', 'init'):
@@ -199,11 +221,13 @@ class RSDataModule(L.LightningDataModule):
 
         dataset = RSData(
             ds_path=self.ds_path,
+            num_classes=self.num_classes,
             mask_area_ids=mask_area_ids,
             cutout_size=self.cutout_size,
             output_patch_size=self.output_patch_size,
             feature_stat_means=None if mode == 'init' else self.feature_stat_means,
             feature_stat_stds=None if mode == 'init' else self.feature_stat_stds,
+            feature_weights=None if mode == 'init' else self.feature_weights,
             is_pred=True if mode == 'pred' else False,
             augmentor_chain=augmentor_chain
         )

@@ -164,7 +164,10 @@ class LightningResNet(L.LightningModule):
             num_classes: int,
             output_patch_size: int,
             learning_rate: float = 0.001,
-            weight_decay: float = 0):
+            weight_decay: float = 0,
+            use_class_weights: bool = False,
+            feature_weights: Tensor | None = None):
+
         super().__init__()
 
         self.save_hyperparameters()
@@ -172,9 +175,20 @@ class LightningResNet(L.LightningModule):
         self.num_classes = num_classes
         self.learning_rate = learning_rate
         self.weight_decay = weight_decay
+        self.feature_weights = feature_weights
+
+        if use_class_weights:
+            self.class_weights = self.feature_weights
+        elif not use_class_weights:
+            self.class_weights = None
+        else:
+            raise ValueError(
+                f'`use_class_weights` must be a boolean, is {use_class_weights}.'
+            )
+
         self.model = ResNet(inplanes=4, num_classes=num_classes, output_patch_size=output_patch_size)
 
-        self.criterion = nn.CrossEntropyLoss()
+        self.criterion = nn.CrossEntropyLoss(weight=self.class_weights)
 
     def calculate_accuracy(self, y_hat: Tensor, y: Tensor) -> float:
         y_hat_classes = y_hat.argmax(dim=-1)
