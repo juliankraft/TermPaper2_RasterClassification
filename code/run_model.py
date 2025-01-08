@@ -162,6 +162,9 @@ if __name__ == '__main__':
         class_weights = datamodule.get_feature_weights().tolist()
         config['class_weights'] = class_weights
 
+    if args.use_data_augmentation:
+        config['augmentor_chain'] = ac.__repr__()
+
     with open(log_dir / 'config.yml', 'w') as f:
         yaml.dump(config, f, default_flow_style=False)
 
