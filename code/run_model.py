@@ -147,12 +147,7 @@ if __name__ == '__main__':
         # 'log_every_n_steps': 1 if args.dev_run else 10,
     }
 
-    # save all configurations to a yaml file
-    if args.use_class_weights:
-        class_weights = datamodule.get_feature_weights().tolist()
-    else:
-        class_weights = None
-
+    # Save all configurations to a yaml file.
     num_trainable_params = count_trainable_parameters(model)
 
     parser_args_dict = vars(args)
@@ -160,13 +155,17 @@ if __name__ == '__main__':
     config = {
         **parser_args_dict,
         **dev_run_args,
-        'class_weights': class_weights,
         'num_trainable_params': num_trainable_params,
     }
+
+    if args.use_class_weights:
+        class_weights = datamodule.get_feature_weights().tolist()
+        config['class_weights'] = class_weights
 
     with open(log_dir / 'config.yml', 'w') as f:
         yaml.dump(config, f, default_flow_style=False)
 
+    # Trainer
     trainer = L.Trainer(
         default_root_dir=log_dir,
         accelerator=args.device,
