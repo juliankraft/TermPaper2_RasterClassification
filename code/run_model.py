@@ -11,7 +11,7 @@ from typing import cast
 
 from src.dataloader import RSDataModule
 from src.augmentors import AugmentorChain
-from src.model import LightningResNet
+from src.model import LightningResNet, count_trainable_parameters
 from src.utils import PredictionWriter
 
 
@@ -148,10 +148,20 @@ if __name__ == '__main__':
     }
 
     # save all configurations to a yaml file
+    if args.use_class_weights:
+        class_weights = datamodule.get_feature_weights().tolist()
+    else:
+        class_weights = None
+
+    num_trainable_params = count_trainable_parameters(model)
+
     parser_args_dict = vars(args)
+
     config = {
-        'parser_args': parser_args_dict,
-        'dev_run_args': dev_run_args
+        **parser_args_dict,
+        **dev_run_args,
+        'class_weights': class_weights,
+        'num_trainable_params': num_trainable_params,
     }
 
     with open(log_dir / 'config.yml', 'w') as f:
