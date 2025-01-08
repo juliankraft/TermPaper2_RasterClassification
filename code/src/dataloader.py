@@ -93,9 +93,9 @@ class RSData(Dataset):
 
     def calculating_feature_weights(self, ds: xr.Dataset, num_classes: int) -> torch.Tensor:
         label_count = ds['label'].groupby(ds['label']).count().compute()
-        label_count = label_count.reindex({label_count.dims[0]: list(range(0, num_classes))}, fill_value=0)
-        rev_weights = label_count / ds['label'].size
-        weights = 1 - rev_weights
+        rev_weights = label_count / label_count.sum()
+        rev_weights_reindex = rev_weights.reindex({rev_weights.dims[0]: list(range(0, num_classes))}, fill_value=0)
+        weights = 1 - rev_weights_reindex
         weights_tensor = torch.tensor(weights.values, dtype=torch.float32)
 
         return weights_tensor
