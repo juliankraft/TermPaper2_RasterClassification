@@ -46,7 +46,7 @@ if __name__ == '__main__':
     # Add arguments to the parser
     parser.add_argument(
         '--device', type=str, default='cpu',
-        help='Device to run the model on (cuda or cpu).')
+        help='Device to run the model on (gpu or cpu).')
     parser.add_argument(
         '--num_classes', type=int, default=10,
         help='Number of classes in the dataset.')
