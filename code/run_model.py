@@ -1,4 +1,3 @@
-
 import os
 import shutil
 import yaml
@@ -13,7 +12,6 @@ from src.dataloader import RSDataModule
 from src.augmentors import AugmentorChain
 from src.model import LightningResNet, count_trainable_parameters
 from src.utils import PredictionWriter
-
 
 def make_dir_from_args(base_path: Path | str, args: Namespace) -> Path:
     base_path = Path(base_path)
@@ -36,6 +34,8 @@ def make_dir_from_args(base_path: Path | str, args: Namespace) -> Path:
 
 if __name__ == '__main__':
     
+    print('running main (run_model.py)', flush=True) # Debugging
+
     # Loading path from yaml
     with open('path_config.yaml', 'r') as file:
         path_config = yaml.safe_load(file)
@@ -101,9 +101,12 @@ if __name__ == '__main__':
 
     if args.sample_data:
         ds_path = path_config['sample_data_path']
+        print('Using sample data', flush=True) # Debugging
     else:
         ds_path = path_config['data_path']
+        print('Using full data', flush=True) # Debugging
 
+    print('loading datamodule', flush=True) # Debugging
     datamodule = RSDataModule(
         ds_path=ds_path,
         num_classes=args.num_classes,
@@ -116,8 +119,10 @@ if __name__ == '__main__':
         batch_size=args.batch_size,
         num_workers=args.num_workers
     )
+    print('done loading datamodule', flush=True) # Debugging
 
     # Model
+    print('loading model', flush=True) # Debugging
     model = LightningResNet(
         num_classes=args.num_classes,
         output_patch_size=args.output_patch_size,
@@ -126,6 +131,7 @@ if __name__ == '__main__':
         use_class_weights=args.use_class_weights,
         feature_weights=datamodule.get_feature_weights()
     )
+    print('done loading model', flush=True) # Debugging
 
     log_dir = make_dir_from_args(base_path=path_config['output_path'], args=args)
 
@@ -173,6 +179,7 @@ if __name__ == '__main__':
         yaml.dump(config, f, default_flow_style=False)
 
     # Trainer
+    print('loading trainer', flush=True) # Debugging
     trainer = L.Trainer(
         default_root_dir=log_dir,
         accelerator=args.device,
@@ -192,6 +199,7 @@ if __name__ == '__main__':
         log_every_n_steps=1,
         **dev_run_args
     )
+    print('done loading trainer', flush=True) # Debugging
 
     trainer.fit(model=model, datamodule=datamodule)
 
