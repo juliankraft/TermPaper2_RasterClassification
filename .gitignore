@@ -5,6 +5,8 @@ data/
 ArcGisProject/
 runs/
 
+path_config.yaml
+
 # #############################
 # ## Slurm
 

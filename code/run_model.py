@@ -35,6 +35,11 @@ def make_dir_from_args(base_path: Path | str, args: Namespace) -> Path:
 
 
 if __name__ == '__main__':
+    
+    # Loading path from yaml
+    with open('path_config.yaml', 'r') as file:
+        path_config = yaml.safe_load(file)
+
 
     # Initialize the argument parser
     parser = ArgumentParser()
@@ -96,9 +101,9 @@ if __name__ == '__main__':
         ac = None
 
     if args.sample_data:
-        ds_path = '/cfs/earth/scratch/kraftjul/sa2/data/sample_combined.zarr'
+        ds_path = path_config['sample_data_path']
     else:
-        ds_path = '/cfs/earth/scratch/kraftjul/sa2/data/combined.zarr'
+        ds_path = path_config['data_path']
 
     datamodule = RSDataModule(
         ds_path=ds_path,
@@ -123,7 +128,7 @@ if __name__ == '__main__':
         feature_weights=datamodule.get_feature_weights()
     )
 
-    log_dir = make_dir_from_args(base_path='/cfs/earth/scratch/kraftjul/sa2/runs', args=args)
+    log_dir = make_dir_from_args(base_path=path_config['output_path'], args=args)
 
     tb_logger = TensorBoardLogger(
         save_dir=log_dir,
@@ -165,7 +170,7 @@ if __name__ == '__main__':
     if args.use_data_augmentation:
         config['augmentor_chain'] = ac.__repr__()
 
-    with open(log_dir / 'config.yml', 'w') as f:
+    with open(log_dir / 'config.yaml', 'w') as f:
         yaml.dump(config, f, default_flow_style=False)
 
     # Trainer
