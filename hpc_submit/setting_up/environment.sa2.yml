@@ -1,0 +1,27 @@
+---
+name: sa2
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python>=3.9
+  - pytorch=2.5.1
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=12.1
+  - pytorch
+  - lightning
+  - tensorboard
+  - xarray
+  - dask
+  - zarr
+  - rioxarray
+  - matplotlib
+  - jupyter
+  - pandas
+  - geopandas
+  - numpy
+  - seaborn
+  - pip
