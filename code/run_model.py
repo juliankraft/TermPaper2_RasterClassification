@@ -96,9 +96,9 @@ if __name__ == '__main__':
         ac = None
 
     if args.sample_data:
-        ds_path = '../data/sample_combined.zarr'
+        ds_path = '/cfs/earth/scratch/kraftjul/sa2/data/sample_combined.zarr'
     else:
-        ds_path = '../data/combined.zarr'
+        ds_path = '/cfs/earth/scratch/kraftjul/sa2/data/combined.zarr'
 
     datamodule = RSDataModule(
         ds_path=ds_path,
@@ -123,7 +123,7 @@ if __name__ == '__main__':
         feature_weights=datamodule.get_feature_weights()
     )
 
-    log_dir = make_dir_from_args(base_path='../runs', args=args)
+    log_dir = make_dir_from_args(base_path='/cfs/earth/scratch/kraftjul/sa2/runs', args=args)
 
     tb_logger = TensorBoardLogger(
         save_dir=log_dir,
