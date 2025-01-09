@@ -34,8 +34,12 @@ nvidia-smi
 echo
 echo "#########################################   Run Model"
 echo
-
+echo "canging wd"
 cd /cfs/earth/scratch/kraftjul/sa2/code
+pwd
+echo
+echo "#########################################   Lets go!"
+echo
 
-micromamba run -n sa2 python python run_model.py --device=gpu --num_workers=4 --patience=20 --batch_size=16 --sample_data --overwrite --dev_run --use_class_weights
+micromamba run -n sa2 python run_model.py --device=gpu --num_workers=1 --patience=20 --batch_size=16 --sample_data --overwrite --dev_run --use_class_weights
 
