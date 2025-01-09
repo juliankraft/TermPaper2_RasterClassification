@@ -247,8 +247,8 @@ def par_class_weights(
     class_weights = []
     for i in range(num_classes):
         if i not in val_counts:
-            class_weights.append(0.0)
+            class_weights.append(1.0)
         else:
             class_weights.append((total_count - val_counts[i]) / total_count)
 
-    return torch.tensor(class_weights)
+    return torch.tensor(class_weights, dtype=torch.float32)
