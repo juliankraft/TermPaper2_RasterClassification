@@ -4,11 +4,12 @@ import torch
 from os import PathLike
 from pathlib import Path
 import lightning as L
-
+import dask
 from torch.utils.data import Dataset, DataLoader
 from src.augmentors import AugmentorChain
 from typing import Any, TypedDict
 
+dask.config.set(scheduler='synchronous')
 
 class ReturnType(TypedDict):
     x: np.ndarray
@@ -186,7 +187,6 @@ class RSDataModule(L.LightningDataModule):
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.augmentor_chain = augmentor_chain
-
         train_data = self.get_dataset(mode='init')
         self.feature_stat_means = train_data.feature_stat_means
         self.feature_stat_stds = train_data.feature_stat_stds
@@ -194,7 +194,7 @@ class RSDataModule(L.LightningDataModule):
 
         self.dataloader_args: dict[str, Any] = {
             'num_workers': self.num_workers,
-            'persistent_workers': True
+            # 'persistent_workers': True
         }
 
     def get_feature_weights(self) -> torch.Tensor:
