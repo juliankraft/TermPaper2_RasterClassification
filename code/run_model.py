@@ -40,7 +40,6 @@ if __name__ == '__main__':
     with open('path_config.yaml', 'r') as file:
         path_config = yaml.safe_load(file)
 
-
     # Initialize the argument parser
     parser = ArgumentParser()
 
