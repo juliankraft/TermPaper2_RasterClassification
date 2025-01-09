@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#SBATCH --job-name=pytorch-test
+#SBATCH --job-name=test_model
 
 #SBATCH --mail-type=fail,end
 
@@ -9,7 +9,7 @@
 #SBATCH --constraint=rhel8
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task=6
 #SBATCH --mem=8G
 # #SBATCH --gres=gpu:a100:1
 #SBATCH --gres=gpu:l40s:1
@@ -41,5 +41,5 @@ echo
 echo "#########################################   Lets go!"
 echo
 
-micromamba run -n sa2 python run_model.py --device=gpu --num_workers=1 --patience=20 --batch_size=16 --sample_data --overwrite --dev_run --use_class_weights
+micromamba run -n sa2 python run_model.py --device=gpu --num_workers=6 --patience=20 --batch_size=16 --sample_data --overwrite --dev_run --use_class_weights
 
