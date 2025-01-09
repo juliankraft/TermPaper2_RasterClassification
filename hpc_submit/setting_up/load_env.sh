@@ -33,12 +33,6 @@ if ! micromamba env list | grep -Eq "^\s*${env_name:?} "; then
 
     micromamba -y create -f ${environment_file:?} || { echo "Environment creation failed!"; exit 1; }
 
-    # Activate the environment and install the package
-    if [ $? -eq 0 ]; then
-        echo "- Environment created successfully, installing package"
-        micromamba run -n ${env_name:?} pip install -e /cfs/earth/scratch/${USER}/sa2/code || { echo "Package installation failed!"; exit 1; }
-    fi
-
 else
     echo "- Environment ${env_name:?} already exists"
 
