@@ -166,7 +166,7 @@ class LightningResNet(L.LightningModule):
             learning_rate: float = 0.001,
             weight_decay: float = 0,
             use_class_weights: bool = False,
-            feature_weights: Tensor | None = None):
+            class_weights: Tensor | None = None):
 
         super().__init__()
 
@@ -175,10 +175,10 @@ class LightningResNet(L.LightningModule):
         self.num_classes = num_classes
         self.learning_rate = learning_rate
         self.weight_decay = weight_decay
-        self.feature_weights = feature_weights
+        self.class_weights = class_weights
 
         if use_class_weights:
-            self.class_weights = self.feature_weights
+            self.class_weights = self.class_weights
         elif not use_class_weights:
             self.class_weights = None
         else:

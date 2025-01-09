@@ -7,9 +7,11 @@ import lightning as L
 import dask
 from torch.utils.data import Dataset, DataLoader
 from src.augmentors import AugmentorChain
+from src.parallel_stats import par_stats, par_class_weights
 from typing import Any, TypedDict
 
 dask.config.set(scheduler='synchronous')
+
 
 class ReturnType(TypedDict):
     x: np.ndarray
@@ -22,19 +24,21 @@ class RSData(Dataset):
     def __init__(
             self,
             ds_path: str | PathLike,
+            num_workers: int,
             num_classes: int,
             mask_area_ids: list[int] | int,
             cutout_size: int = 41,
             output_patch_size: int = 5,
             feature_stat_means: xr.DataArray | None = None,
             feature_stat_stds: xr.DataArray | None = None,
-            feature_weights: torch.Tensor | None = None,
+            class_weights: torch.Tensor | None = None,
             is_pred: bool = False,
             augmentor_chain: AugmentorChain | None = None):
 
         super().__init__()
 
         self.ds = xr.open_zarr(ds_path)
+        self.num_workers = num_workers
         self.num_classes = num_classes
 
         if cutout_size % 2 == 0:
@@ -75,20 +79,37 @@ class RSData(Dataset):
 
         self.coords = np.argwhere(self.agg_mask.values)
 
-        if len(set([feature_stat_means is None, feature_stat_stds is None, feature_weights is None])) != 1:
+        if len(set([feature_stat_means is None, feature_stat_stds is None, class_weights is None])) != 1:
             raise ValueError(
-                'either pass all of `feature_stat_means`, `feature_stat_stds`, and `feature_weights` or none.'
+                'either pass all of `feature_stat_means`, `feature_stat_stds`, and `class_weights` or none.'
             )
 
         print('computing feature stats', flush=True) # Debugging
+        # if feature_stat_means is None:
+        #     feature_stat_means = self.ds.rs.where(self.mask).mean(('x', 'y')).compute()
+        #     feature_stat_stds = self.ds.rs.where(self.mask).std(('x', 'y')).compute()
+        #     class_weights = self.calculating_class_weights(self.ds.where(self.mask), self.num_classes)
+
         if feature_stat_means is None:
-            feature_stat_means = self.ds.rs.where(self.mask).mean(('x', 'y')).compute()
-            feature_stat_stds = self.ds.rs.where(self.mask).std(('x', 'y')).compute()
-            feature_weights = self.calculating_feature_weights(self.ds.where(self.mask), self.num_classes)
+            stats = par_stats(
+                            path=ds_path,
+                            variables=['rs'],
+                            mask=self.mask,
+                            num_processes=self.num_workers
+                            )
+            feature_stat_means = stats['rs']['mean'].astype('float32')
+            feature_stat_stds = stats['rs']['std'].astype('float32')
+            class_weights = par_class_weights(
+                                            path=ds_path,
+                                            variable='label',
+                                            mask=self.mask,
+                                            num_classes=self.num_classes,
+                                            num_processes=self.num_workers
+                                            )
 
         self.feature_stat_means = feature_stat_means
         self.feature_stat_stds = feature_stat_stds
-        self.feature_weights = feature_weights
+        self.class_weights = class_weights
 
         print('done computing feature stats', flush=True) # Debugging
 
@@ -97,14 +118,14 @@ class RSData(Dataset):
         else:
             self.augmentor_chain = augmentor_chain
 
-    def calculating_feature_weights(self, ds: xr.Dataset, num_classes: int) -> torch.Tensor:
-        label_count = ds['label'].groupby(ds['label']).count().compute()
-        rev_weights = label_count / label_count.sum()
-        rev_weights_reindex = rev_weights.reindex({rev_weights.dims[0]: list(range(0, num_classes))}, fill_value=0)
-        weights = 1 - rev_weights_reindex
-        weights_tensor = torch.tensor(weights.values, dtype=torch.float32)
+    # def calculating_class_weights(self, ds: xr.Dataset, num_classes: int) -> torch.Tensor:
+    #     label_count = ds['label'].groupby(ds['label']).count().compute()
+    #     rev_weights = label_count / label_count.sum()
+    #     rev_weights_reindex = rev_weights.reindex({rev_weights.dims[0]: list(range(0, num_classes))}, fill_value=0)
+    #     weights = 1 - rev_weights_reindex
+    #     weights_tensor = torch.tensor(weights.values, dtype=torch.float32)
 
-        return weights_tensor
+    #     return weights_tensor
 
     def get_mask_values(self, mask_area: list[int] | int) -> np.ndarray:
         mask_area_ = np.array([mask_area] if isinstance(mask_area, int) else mask_area)
@@ -196,15 +217,15 @@ class RSDataModule(L.LightningDataModule):
         train_data = self.get_dataset(mode='init')
         self.feature_stat_means = train_data.feature_stat_means
         self.feature_stat_stds = train_data.feature_stat_stds
-        self.feature_weights = train_data.feature_weights
+        self.class_weights = train_data.class_weights
         print('done computing stats', flush=True) # Debugging
         self.dataloader_args: dict[str, Any] = {
             'num_workers': self.num_workers,
             # 'persistent_workers': True
         }
 
-    def get_feature_weights(self) -> torch.Tensor:
-        return self.feature_weights
+    def get_class_weights(self) -> torch.Tensor:
+        return self.class_weights
 
     def get_dataset(self, mode: str) -> RSData:
         if mode in ('train', 'init'):
@@ -227,13 +248,14 @@ class RSDataModule(L.LightningDataModule):
         print(f'creating {mode} dataset', flush=True) # Debugging
         dataset = RSData(
             ds_path=self.ds_path,
+            num_workers=self.num_workers,
             num_classes=self.num_classes,
             mask_area_ids=mask_area_ids,
             cutout_size=self.cutout_size,
             output_patch_size=self.output_patch_size,
             feature_stat_means=None if mode == 'init' else self.feature_stat_means,
             feature_stat_stds=None if mode == 'init' else self.feature_stat_stds,
-            feature_weights=None if mode == 'init' else self.feature_weights,
+            class_weights=None if mode == 'init' else self.class_weights,
             is_pred=True if mode == 'pred' else False,
             augmentor_chain=augmentor_chain
         )

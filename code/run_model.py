@@ -129,7 +129,7 @@ if __name__ == '__main__':
         learning_rate=args.learning_rate,
         weight_decay=args.weight_decay,
         use_class_weights=args.use_class_weights,
-        feature_weights=datamodule.get_feature_weights()
+        class_weights=datamodule.get_class_weights()
     )
     print('done loading model', flush=True) # Debugging
 
@@ -169,7 +169,7 @@ if __name__ == '__main__':
     }
 
     if args.use_class_weights:
-        class_weights = datamodule.get_feature_weights().tolist()
+        class_weights = datamodule.get_class_weights().tolist()
         config['class_weights'] = class_weights
 
     if args.use_data_augmentation:
