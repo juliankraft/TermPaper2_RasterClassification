@@ -31,18 +31,12 @@ echo "################## Load (and set up) environment ${env_name:?}"
 if ! micromamba env list | grep -Eq "^\s*${env_name:?} "; then
     echo "- Create conda environment ${env_name:?}"
 
-    # if [[ -z "$MPICC" ]]; then
-    #     MPICC=$(which mpicc)
-    # fi
-    # echo "MPICC: $MPICC"
     micromamba -y create -f ${environment_file:?} || { echo "Environment creation failed!"; exit 1; }
 
     # Activate the environment and install the package
     if [ $? -eq 0 ]; then
         echo "- Environment created successfully, installing package"
-        micromamba activate ${env_name:?} || { echo "Failed to activate environment!"; exit 1; }
-        pip install -e /cfs/earth/scratch/${USER}/sa2/code || { echo "Package installation failed!"; exit 1; }
-        micromamba deactivate
+        micromamba run -n ${env_name:?} pip install -e /cfs/earth/scratch/${USER}/sa2/code || { echo "Package installation failed!"; exit 1; }
     fi
 
 else
