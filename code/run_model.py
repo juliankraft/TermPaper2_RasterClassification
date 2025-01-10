@@ -88,6 +88,9 @@ if __name__ == '__main__':
         help='Apply class weights to the loss function.')
     parser.add_argument(
         '--disable_progress_bar', action='store_true',)
+    parser.add_argument(
+        '--output_path', type=str, default=None,
+        help='Path to save the output - if not provided it will create one.')
 
     # Parse the arguments
     args = parser.parse_args()
@@ -136,7 +139,10 @@ if __name__ == '__main__':
     )
     print('done loading model', flush=True) # Debugging
 
-    log_dir = make_dir_from_args(base_path=path_config['output_path'], args=args)
+    if args.output_path is None:
+        log_dir = make_dir_from_args(base_path=path_config['output_path'], args=args)
+    else:
+        log_dir = args.output_path
 
     tb_logger = TensorBoardLogger(
         save_dir=log_dir,
