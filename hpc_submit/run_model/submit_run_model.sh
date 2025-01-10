@@ -10,7 +10,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=6
-#SBATCH --mem=64G
+#SBATCH --mem=32G
 # #SBATCH --gres=gpu:a100:1
 #SBATCH --gres=gpu:l40s:1
 
@@ -41,4 +41,4 @@ echo
 echo "#########################################   Lets go!"
 echo
 
-micromamba run -n sa2 python run_model.py --device=gpu --num_workers=6 --learning_rate=0.001 --patience=20 --batch_size=126 --overwrite --sample_data
+micromamba run -n sa2 python run_model.py --device=gpu --num_workers=6 --learning_rate=0.001 --patience=20 --batch_size=256 --overwrite --disable_progress_bar
