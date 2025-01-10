@@ -5,6 +5,7 @@ import lightning as L
 
 from torchvision.utils import _log_api_usage_once
 from torchvision.models.resnet import BasicBlock, Bottleneck, conv1x1
+from torcheval.metrics.functional import multiclass_f1_score
 
 from typing import Callable, Type, Literal
 from torch import Tensor
@@ -210,9 +211,12 @@ class LightningResNet(L.LightningModule):
 
         accuracy = self.calculate_accuracy(y_hat_flat, y_flat)
 
+        f1_score = multiclass_f1_score(y_hat_flat, y_flat, num_classes=self.num_classes, average='macro')
+
         self.log_dict({
             f'{mode}_loss': loss,
-            f'{mode}_acc': accuracy
+            f'{mode}_acc': accuracy,
+            f'{mode}_f1': f1_score
         }, logger=True, on_step=(mode == 'train'), on_epoch=True)
 
         return y_hat, loss
