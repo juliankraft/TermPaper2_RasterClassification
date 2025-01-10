@@ -25,15 +25,17 @@ class PredictionWriter(BasePredictionWriter):
             trainer: L.Trainer,
             pl_module: LightningResNet) -> None:
 
+        print('running on_predict_start', flush=True)  # Debugging
         predict_dataloader = cast(DataLoader, trainer.predict_dataloaders)
         ds = cast(xr.Dataset, predict_dataloader.dataset.ds)  # type: ignore
         num_classes = pl_module.num_classes
 
         self.mask = ds.mask
         self.da = xr.full_like(
-            ds['label'].load().expand_dims(cls=np.arange(num_classes), axis=-1),
+            ds['label'],
             dtype=np.float16,
-            fill_value=np.nan)
+            fill_value=np.nan).expand_dims(cls=np.arange(num_classes), axis=-1).load()
+
         self.da.name = 'label_prob'
 
     def write_on_batch_end(
@@ -57,6 +59,7 @@ class PredictionWriter(BasePredictionWriter):
 
     def on_predict_end(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
 
+        print('running on_predict_end', flush=True)  # Debugging
         da = self.da
 
         cls_pred = xr.full_like(da.isel(cls=0), fill_value=np.nan)
@@ -68,6 +71,7 @@ class PredictionWriter(BasePredictionWriter):
             'label_pred': cls_pred,
             'training_mask': self.mask
         })
+        print('saving prediction', flush=True)
         save_path = self.make_predition_path(self.output_dir)
         ds.to_zarr(save_path, mode='w')
 
