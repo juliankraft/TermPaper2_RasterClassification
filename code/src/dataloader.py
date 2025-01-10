@@ -25,6 +25,7 @@ class RSData(Dataset):
             self,
             ds_path: str | PathLike,
             num_workers: int,
+            disable_progress_bar: bool,
             num_classes: int,
             mask_area_ids: list[int] | int,
             cutout_size: int = 41,
@@ -39,6 +40,7 @@ class RSData(Dataset):
 
         self.ds = xr.open_zarr(ds_path)
         self.num_workers = num_workers
+        self.disable_progress_bar = disable_progress_bar
         self.num_classes = num_classes
 
         if cutout_size % 2 == 0:
@@ -95,7 +97,8 @@ class RSData(Dataset):
                             path=ds_path,
                             variables=['rs'],
                             mask=self.mask,
-                            num_processes=self.num_workers
+                            num_processes=self.num_workers,
+                            disable_progress_bar=self.disable_progress_bar
                             )
             feature_stat_means = stats['rs']['mean'].astype('float32')
             feature_stat_stds = stats['rs']['std'].astype('float32')
@@ -104,7 +107,8 @@ class RSData(Dataset):
                                             variable='label',
                                             mask=self.mask,
                                             num_classes=self.num_classes,
-                                            num_processes=self.num_workers
+                                            num_processes=self.num_workers,
+                                            disable_progress_bar=self.disable_progress_bar
                                             )
 
         self.feature_stat_means = feature_stat_means
@@ -199,6 +203,7 @@ class RSDataModule(L.LightningDataModule):
             output_patch_size: int,
             batch_size: int,
             num_workers: int = 10,
+            disable_progress_bar: bool = False,
             augmentor_chain: AugmentorChain | None = None):
 
         super().__init__()
@@ -212,6 +217,7 @@ class RSDataModule(L.LightningDataModule):
         self.output_patch_size = output_patch_size
         self.batch_size = batch_size
         self.num_workers = num_workers
+        self.disable_progress_bar = disable_progress_bar
         self.augmentor_chain = augmentor_chain
         print('computing training data stats', flush=True) # Debugging
         train_data = self.get_dataset(mode='init')
@@ -249,6 +255,7 @@ class RSDataModule(L.LightningDataModule):
         dataset = RSData(
             ds_path=self.ds_path,
             num_workers=self.num_workers,
+            disable_progress_bar=self.disable_progress_bar,
             num_classes=self.num_classes,
             mask_area_ids=mask_area_ids,
             cutout_size=self.cutout_size,

@@ -45,6 +45,7 @@ def chunk_parcall(
         path: str | PathLike,
         var: str | list[str],
         num_processes: int,
+        disable_progress_bar: bool,
         fun: Callable,
         use_mask: bool,
         mask: xr.DataArray | None = None,
@@ -104,19 +105,26 @@ def chunk_parcall(
             else:
                 iterable.append((path, var, lat_slice, lon_slice, *args))
 
-    if isinstance(var, list):
-        desc_var = ', '.join(var)
-    else:
-        desc_var = var
-
     results = []
-    with Pool(num_processes) as pool:
-        for r in tqdm.tqdm(
-                pool.istarmap(fun, iterable),
-                total=len(iterable),
-                desc=f'{desc} {desc_var:<25}',
-                ncols=160):
-            results.append(r)
+
+    if disable_progress_bar:
+        with Pool(num_processes) as pool:
+            for r in pool.istarmap(fun, iterable):
+                results.append(r)
+    else:
+
+        if isinstance(var, list):
+            desc_var = ', '.join(var)
+        else:
+            desc_var = var
+
+        with Pool(num_processes) as pool:
+            for r in tqdm.tqdm(
+                    pool.istarmap(fun, iterable),
+                    total=len(iterable),
+                    desc=f'{desc} {desc_var:<25}',
+                    ncols=160):
+                results.append(r)
 
     if xrcombine:
         results = xr.combine_by_coords(results)
@@ -152,7 +160,10 @@ def par_stats(
         path: str | PathLike,
         variables: list[str],
         mask: xr.DataArray | None = None,
-        num_processes: int = 1):
+        num_processes: int = 1,
+        disable_progress_bar: bool = False):
+
+    print(f'Computing stats - num_processes {num_processes}...') # Debugging
 
     stats = {}
 
@@ -162,6 +173,7 @@ def par_stats(
             path=path,
             var=var,
             num_processes=num_processes,
+            disable_progress_bar=disable_progress_bar,
             fun=batch_stats,
             use_mask=True,
             mask=mask,
@@ -212,12 +224,16 @@ def par_class_weights(
         variable: str,
         num_classes: int,
         mask: xr.DataArray | None = None,
-        num_processes: int = 1):
+        num_processes: int = 1,
+        disable_progress_bar: bool = False):
+
+    print(f'Computing class weights - num_processes {num_processes}...') # Debugging
 
     results = chunk_parcall(
         path=path,
         var=variable,
         num_processes=num_processes,
+        disable_progress_bar=disable_progress_bar,
         fun=batch_class_count,
         use_mask=True,
         mask=mask,

@@ -86,6 +86,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '--use_class_weights', action='store_true',
         help='Apply class weights to the loss function.')
+    parser.add_argument(
+        '--disable_progress_bar', action='store_true',)
 
     # Parse the arguments
     args = parser.parse_args()
@@ -117,7 +119,8 @@ if __name__ == '__main__':
         output_patch_size=args.output_patch_size,
         augmentor_chain=ac,
         batch_size=args.batch_size,
-        num_workers=args.num_workers
+        num_workers=args.num_workers,
+        disable_progress_bar=args.disable_progress_bar
     )
     print('done loading datamodule', flush=True) # Debugging
 
@@ -197,6 +200,7 @@ if __name__ == '__main__':
         ],
         logger=[tb_logger, csv_logger],
         log_every_n_steps=1,
+        enable_progress_bar=not args.disable_progress_bar,
         **dev_run_args
     )
     print('done loading trainer', flush=True) # Debugging
