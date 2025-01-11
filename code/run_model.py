@@ -13,6 +13,7 @@ from src.augmentors import AugmentorChain
 from src.model import LightningResNet, count_trainable_parameters
 from src.utils import PredictionWriter
 
+
 def make_dir_from_args(base_path: Path | str, args: Namespace) -> Path:
     base_path = Path(base_path)
     specific_path = 'augment' if args.use_data_augmentation else 'noaugment'
