@@ -48,6 +48,8 @@ class ChunkWriter():
             }
         )
 
+        ds['sealed_simple'] = ds.sealed.where(ds.sealed != 2, 1)
+
         ds = ds.transpose('band', 'x', 'y')
 
         category_dict = {
@@ -76,10 +78,14 @@ class ChunkWriter():
         ds['rs'].attrs.update({'source': 'SwissImage RS'})
         ds['category'].attrs.update({'classes': ', '.join([f'{k}={v}' for k, v in category_dict.items()])})
         ds['sealed'].attrs.update({'classes': ', '.join([f'{k}={v}' for k, v in sealed_dict.items()])})
+        ds['sealed_simple'].attrs.update({
+            'classes': ', '.join([f'{k}={v}' for k, v in sealed_dict.items() if k != 2])
+            })
 
         ds['rs'] = ds.rs.chunk({'band': 4, 'x': self.chunk_size, 'y': self.chunk_size})
-        ds['category'] = ds.label.chunk({'x': self.chunk_size, 'y': self.chunk_size})
+        ds['category'] = ds.category.chunk({'x': self.chunk_size, 'y': self.chunk_size})
         ds['sealed'] = ds.sealed.chunk({'x': self.chunk_size, 'y': self.chunk_size})
+        ds['sealed_simple'] = ds.sealed_simple.chunk({'x': self.chunk_size, 'y': self.chunk_size})
         ds['mask'] = ds.mask.chunk({'x': -1, 'y': -1})
 
         encoding = {}
@@ -114,7 +120,7 @@ if __name__ == '__main__':
     print("Classes defined...    ")
 
     # datatset path
-    tiff_path = '/cfs/earth/scratch/kraftjul/sa2/data/Dataset_Category_Sealing/ds_categorys_sealing.tif'
+    tiff_path = '/cfs/earth/scratch/kraftjul/sa2/data/dataset_category_sealing/ds_categorys_sealing.tif'
     save_path = '/cfs/earth/scratch/kraftjul/sa2/data/ds_categorys_sealing.zarr'
 
     # # testset psth
