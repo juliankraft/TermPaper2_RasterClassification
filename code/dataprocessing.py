@@ -44,11 +44,15 @@ class ChunkWriter():
                 'rs': da.sel(band=[1, 2, 3, 4]),
                 'mask': da.sel(band=5),
                 'category': da.sel(band=6),
-                'sealed': da.sel(band=7)
             }
         )
 
-        ds['sealed_simple'] = ds.sealed.where(ds.sealed != 2, 1)
+        ds['sealed'] = da.sel(band=7)
+        ds['sealed'] = ds['sealed'].where(ds['sealed'] != 1, 0)
+        ds['sealed'] = ds['sealed'].where(ds['sealed'] != 2, 1)
+        ds['sealed'] = ds['sealed'].where(ds['sealed'] != 3, 2)
+
+        ds['sealed_simple'] = ds['sealed'].where(ds['sealed'] != 2, 1)
 
         ds = ds.transpose('band', 'x', 'y')
 
