@@ -87,10 +87,6 @@ class RSData(Dataset):
             )
 
         print('computing feature stats', flush=True) # Debugging
-        # if feature_stat_means is None:
-        #     feature_stat_means = self.ds.rs.where(self.mask).mean(('x', 'y')).compute()
-        #     feature_stat_stds = self.ds.rs.where(self.mask).std(('x', 'y')).compute()
-        #     class_weights = self.calculating_class_weights(self.ds.where(self.mask), self.num_classes)
 
         if feature_stat_means is None:
             stats = par_stats(
@@ -121,15 +117,6 @@ class RSData(Dataset):
             self.augmentor_chain = AugmentorChain(random_seed=0, augmentors=[])
         else:
             self.augmentor_chain = augmentor_chain
-
-    # def calculating_class_weights(self, ds: xr.Dataset, num_classes: int) -> torch.Tensor:
-    #     label_count = ds['label'].groupby(ds['label']).count().compute()
-    #     rev_weights = label_count / label_count.sum()
-    #     rev_weights_reindex = rev_weights.reindex({rev_weights.dims[0]: list(range(0, num_classes))}, fill_value=0)
-    #     weights = 1 - rev_weights_reindex
-    #     weights_tensor = torch.tensor(weights.values, dtype=torch.float32)
-
-    #     return weights_tensor
 
     def get_mask_values(self, mask_area: list[int] | int) -> np.ndarray:
         mask_area_ = np.array([mask_area] if isinstance(mask_area, int) else mask_area)
