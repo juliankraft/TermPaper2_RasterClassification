@@ -9,8 +9,8 @@
 #SBATCH --constraint=rhel8
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=6
-#SBATCH --mem=32G
+#SBATCH --cpus-per-task=12
+#SBATCH --mem=42G
 # #SBATCH --gres=gpu:a100:1
 #SBATCH --gres=gpu:l40s:1
 
@@ -32,13 +32,38 @@ hostname
 nvidia-smi
 
 echo
-echo "#########################################   Run Model"
+echo "#########################################   changing wd"
 echo
 echo "changing wd"
 cd /cfs/earth/scratch/kraftjul/sa2/code
 pwd
 echo
-echo "#########################################   Lets go!"
+echo "#########################################   defining drguments"
 echo
 
-micromamba run -n sa2 python run_model.py --device=gpu --num_workers=6 --learning_rate=0.001 --patience=20 --batch_size=256 --overwrite --disable_progress_bar
+# Define the arguments for the Python script in a list
+PYTHON_ARGS=(
+    --device=gpu
+    --batch_size=256
+    --num_workers=12
+    # --cutout_size=51
+    # --output_patch_size=5
+    --learning_rate=0.001
+    # --weight_decay=0.0
+    # --use_data_augmentation
+    --patience=10
+    --overwrite
+    # --dev_run
+    --use_class_weights
+    # --disable_progress_bar
+    # --output_path=/path/to/output
+    --label_type=sealed
+)
+
+echo "${PYTHON_ARGS[@]}"
+
+echo
+echo "#########################################   start model"
+
+# Pass the arguments to the Python script
+micromamba run -n sa2 python run_model.py "${PYTHON_ARGS[@]}"

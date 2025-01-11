@@ -10,6 +10,7 @@ dependencies:
   - pytorch=2.5.1
   - torchvision
   - torchaudio
+  - torcheval
   - pytorch-cuda=12.1
   - pytorch
   - lightning

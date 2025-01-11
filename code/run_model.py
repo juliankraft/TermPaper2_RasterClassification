@@ -13,6 +13,7 @@ from src.augmentors import AugmentorChain
 from src.model import LightningResNet, count_trainable_parameters
 from src.utils import PredictionWriter
 
+
 def make_dir_from_args(base_path: Path | str, args: Namespace) -> Path:
     base_path = Path(base_path)
     specific_path = 'augment' if args.use_data_augmentation else 'noaugment'
@@ -48,9 +49,6 @@ if __name__ == '__main__':
         '--device', type=str, default='cpu',
         help='Device to run the model on (gpu or cpu).')
     parser.add_argument(
-        '--num_classes', type=int, default=10,
-        help='Number of classes in the dataset.')
-    parser.add_argument(
         '--batch_size', type=int, default=16,
         help='Batch size for training.')
     parser.add_argument(
@@ -81,9 +79,6 @@ if __name__ == '__main__':
         '--dev_run', action='store_true',
         help='Runs 3 epochs with one batch of training and validation each.')
     parser.add_argument(
-        '--sample_data', action='store_true',
-        help='Use only the small sample data set.')
-    parser.add_argument(
         '--use_class_weights', action='store_true',
         help='Apply class weights to the loss function.')
     parser.add_argument(
@@ -91,9 +86,21 @@ if __name__ == '__main__':
     parser.add_argument(
         '--output_path', type=str, default=None,
         help='Path to save the output - if not provided it will create one.')
+    parser.add_argument(
+        '--label_type', type=str, default='category',
+        help='Label type for the dataset. Options: category, sealed, sealed_simple. Default: category.')
 
     # Parse the arguments
     args = parser.parse_args()
+
+    if args.label_type == 'category':
+        num_classes = 10
+    elif args.label_type == 'sealed':
+        num_classes = 3
+    elif args.label_type == 'sealed_simple':
+        num_classes = 2
+    else:
+        raise ValueError(f'label type must be category, sealed, sealed_simple: {args.label_type}')
 
     if args.use_data_augmentation:
         ac = AugmentorChain.from_args(
@@ -104,17 +111,11 @@ if __name__ == '__main__':
     else:
         ac = None
 
-    if args.sample_data:
-        ds_path = path_config['sample_data_path']
-        print('Using sample data', flush=True) # Debugging
-    else:
-        ds_path = path_config['data_path']
-        print('Using full data', flush=True) # Debugging
-
     print('loading datamodule', flush=True) # Debugging
     datamodule = RSDataModule(
-        ds_path=ds_path,
-        num_classes=args.num_classes,
+        ds_path=path_config['data_path'],
+        num_classes=num_classes,
+        label_type=args.label_type,
         train_area_ids=[1, 2],
         valid_area_ids=[3],
         test_area_ids=[4],
@@ -130,7 +131,7 @@ if __name__ == '__main__':
     # Model
     print('loading model', flush=True) # Debugging
     model = LightningResNet(
-        num_classes=args.num_classes,
+        num_classes=num_classes,
         output_patch_size=args.output_patch_size,
         learning_rate=args.learning_rate,
         weight_decay=args.weight_decay,
@@ -175,6 +176,7 @@ if __name__ == '__main__':
         **parser_args_dict,
         **dev_run_args,
         'num_trainable_params': num_trainable_params,
+        'num_classes': num_classes,
     }
 
     if args.use_class_weights:
@@ -202,7 +204,7 @@ if __name__ == '__main__':
             EarlyStopping(
                 monitor='valid_loss',
                 patience=args.patience),
-            PredictionWriter(output_dir=log_dir),
+            PredictionWriter(output_dir=log_dir, label_type=args.label_type),
         ],
         logger=[tb_logger, csv_logger],
         log_every_n_steps=1,
@@ -212,6 +214,9 @@ if __name__ == '__main__':
     print('done loading trainer', flush=True) # Debugging
 
     trainer.fit(model=model, datamodule=datamodule)
-
+    print('done training', flush=True) # Debugging
+    print('loading best model', flush=True) # Debugging
     best_model_path = cast(str, trainer.checkpoint_callback.best_model_path)  # type: ignore
-    trainer.predict(model=model, datamodule=datamodule, ckpt_path=best_model_path)
+    print('done loading best model', flush=True) # Debugging
+    print('predicting', flush=True) # Debuging
+    trainer.predict(model=model, datamodule=datamodule, ckpt_path=best_model_path, return_predictions=False)

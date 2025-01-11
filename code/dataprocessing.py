@@ -43,13 +43,20 @@ class ChunkWriter():
             {
                 'rs': da.sel(band=[1, 2, 3, 4]),
                 'mask': da.sel(band=5),
-                'label': da.sel(band=6),
+                'category': da.sel(band=6),
             }
         )
 
+        ds['sealed'] = da.sel(band=7)
+        ds['sealed'] = ds['sealed'].where(ds['sealed'] != 1, 0)
+        ds['sealed'] = ds['sealed'].where(ds['sealed'] != 2, 1)
+        ds['sealed'] = ds['sealed'].where(ds['sealed'] != 3, 2)
+
+        ds['sealed_simple'] = ds['sealed'].where(ds['sealed'] != 2, 1)
+
         ds = ds.transpose('band', 'x', 'y')
 
-        category_dict_reversed = {
+        category_dict = {
             0: "ConstructionSite",
             1: "Building",
             2: "BuildingDistortion",
@@ -62,15 +69,27 @@ class ChunkWriter():
             9: "SealedObjects"
         }
 
+        sealed_dict = {
+            0: "unsealed",
+            1: "sealed",
+            2: "unknown"
+        }
+
         # Dataset attributes
         ds.attrs = {'creator': 'Julian Kraft'}
 
         # Variable attributes
         ds['rs'].attrs.update({'source': 'SwissImage RS'})
-        ds['label'].attrs.update({'classes': ', '.join([f'{k}={v}' for k, v in category_dict_reversed.items()])})
+        ds['category'].attrs.update({'classes': ', '.join([f'{k}={v}' for k, v in category_dict.items()])})
+        ds['sealed'].attrs.update({'classes': ', '.join([f'{k}={v}' for k, v in sealed_dict.items()])})
+        ds['sealed_simple'].attrs.update({
+            'classes': ', '.join([f'{k}={v}' for k, v in sealed_dict.items() if k != 2])
+            })
 
         ds['rs'] = ds.rs.chunk({'band': 4, 'x': self.chunk_size, 'y': self.chunk_size})
-        ds['label'] = ds.label.chunk({'x': self.chunk_size, 'y': self.chunk_size})
+        ds['category'] = ds.category.chunk({'x': self.chunk_size, 'y': self.chunk_size})
+        ds['sealed'] = ds.sealed.chunk({'x': self.chunk_size, 'y': self.chunk_size})
+        ds['sealed_simple'] = ds.sealed_simple.chunk({'x': self.chunk_size, 'y': self.chunk_size})
         ds['mask'] = ds.mask.chunk({'x': -1, 'y': -1})
 
         encoding = {}
@@ -105,8 +124,8 @@ if __name__ == '__main__':
     print("Classes defined...    ")
 
     # datatset path
-    tiff_path = '/cfs/earth/scratch/kraftjul/sa2/data/CombinedData_32signed/CombinedData32signed.tif'
-    save_path = '/cfs/earth/scratch/kraftjul/sa2/data/combined.zarr'
+    tiff_path = '/cfs/earth/scratch/kraftjul/sa2/data/dataset_category_sealing/ds_categorys_sealing.tif'
+    save_path = '/cfs/earth/scratch/kraftjul/sa2/data/ds_categorys_sealing.zarr'
 
     # # testset psth
     # tiff_path='/cfs/earth/scratch/kraftjul/sa2/data/Sample_CombinedData_32signed/Sample_CombinedData32signed.tif'
