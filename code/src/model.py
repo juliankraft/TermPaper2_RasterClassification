@@ -211,7 +211,7 @@ class LightningResNet(L.LightningModule):
 
         accuracy = self.calculate_accuracy(y_hat_flat, y_flat)
 
-        f1_score = multiclass_f1_score(y_hat_flat, y_flat, num_classes=self.num_classes, average='macro')
+        f1_score = multiclass_f1_score(y_hat_flat, y_flat, num_classes=self.num_classes, average='weighted')
 
         self.log_dict({
             f'{mode}_loss': loss,

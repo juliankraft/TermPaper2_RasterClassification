@@ -14,10 +14,14 @@ from src.model import LightningResNet
 
 
 class PredictionWriter(BasePredictionWriter):
-    def __init__(self, output_dir: str | Path):
+    def __init__(
+            self,
+            output_dir: str | Path,
+            label_type: str):
         super().__init__(write_interval='batch')
 
         self.output_dir = output_dir
+        self.label_type = label_type
         os.makedirs(output_dir, exist_ok=True)
 
     def on_predict_start(
@@ -30,20 +34,21 @@ class PredictionWriter(BasePredictionWriter):
         predict_dataloader = cast(DataLoader, trainer.predict_dataloaders)
         print('getting dataset', flush=True)  # Debugging
         ds = cast(xr.Dataset, predict_dataloader.dataset.ds)  # type: ignore
-        # num_classes = pl_module.num_classes
+        num_classes = pl_module.num_classes
 
         print('getting mask', flush=True)  # Debugging
         self.mask = ds.mask
 
-        # print('initializing da', flush=True)  # Debugging
-        # self.da = xr.full_like(
-        #     ds['label'].load().expand_dims(cls=np.arange(num_classes), axis=-1),
-        #     dtype=np.float16,
-        #     fill_value=np.nan)
+        print('initializing da', flush=True)  # Debugging
+        label_attr = getattr(ds, self.label_type)
+        self.da = xr.full_like(
+            label_attr.load().expand_dims(cls=np.arange(num_classes), axis=-1),
+            dtype=np.float16,
+            fill_value=np.nan)
 
         print('initializing cls_pred', flush=True)  # Debugging
         self.cls_pred = xr.full_like(
-            ds['label'].load(),
+            label_attr.load(),
             dtype=np.float16,
             fill_value=np.nan)
 
@@ -77,10 +82,10 @@ class PredictionWriter(BasePredictionWriter):
     def on_predict_end(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
 
         print('running on_predict_end', flush=True)  # Debugging
-        # da = self.da
+        da = self.da
 
         ds = xr.Dataset({
-            # 'label_prob': da,
+            'label_prob': da,
             'label_pred': self.cls_pred,
             'training_mask': self.mask
         })

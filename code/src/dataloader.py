@@ -27,6 +27,7 @@ class RSData(Dataset):
             num_workers: int,
             disable_progress_bar: bool,
             num_classes: int,
+            label_type: str,
             mask_area_ids: list[int] | int,
             cutout_size: int = 41,
             output_patch_size: int = 5,
@@ -42,6 +43,7 @@ class RSData(Dataset):
         self.num_workers = num_workers
         self.disable_progress_bar = disable_progress_bar
         self.num_classes = num_classes
+        self.label_type = label_type
 
         if cutout_size % 2 == 0:
             raise ValueError('`cutout_size` must be an odd integer.')
@@ -62,7 +64,8 @@ class RSData(Dataset):
         mask = self.ds.mask.isin(self.mask_values).compute()
         # Exclude pixels with no label.
         if not is_pred:
-            mask *= (self.ds.label != 255).values
+            label_attr = getattr(self.ds, self.label_type)
+            mask *= (label_attr != 255).values
 
         # Cut off borders from mask by setting them to False.
         mask[{'x': slice(None, self.offset)}] = False
@@ -100,7 +103,7 @@ class RSData(Dataset):
             feature_stat_stds = stats['rs']['std'].astype('float32')
             class_weights = par_class_weights(
                                             path=ds_path,
-                                            variable='label',
+                                            variable=self.label_type,
                                             mask=self.mask,
                                             num_classes=self.num_classes,
                                             num_processes=self.num_workers,
@@ -157,7 +160,8 @@ class RSData(Dataset):
         x_block_to: int = x_i + self.output_offset + 1
         y_block_from: int = y_i - self.output_offset
         y_block_to: int = y_i + self.output_offset + 1
-        label_sel = self.ds.label.isel(
+        label_attr = getattr(self.ds, self.label_type)
+        label_sel = label_attr.isel(
             x=slice(x_block_from, x_block_to),
             y=slice(y_block_from, y_block_to),
         )
@@ -183,6 +187,7 @@ class RSDataModule(L.LightningDataModule):
             self,
             ds_path: str | PathLike,
             num_classes: int,
+            label_type: str,
             train_area_ids: list[int],
             valid_area_ids: list[int],
             test_area_ids: list[int],
@@ -197,6 +202,7 @@ class RSDataModule(L.LightningDataModule):
 
         self.ds_path = Path(ds_path)
         self.num_classes = num_classes
+        self.label_type = label_type
         self.train_area_ids = train_area_ids
         self.valid_area_ids = valid_area_ids
         self.test_area_ids = test_area_ids
@@ -242,6 +248,7 @@ class RSDataModule(L.LightningDataModule):
         dataset = RSData(
             ds_path=self.ds_path,
             num_workers=self.num_workers,
+            label_type=self.label_type,
             disable_progress_bar=self.disable_progress_bar,
             num_classes=self.num_classes,
             mask_area_ids=mask_area_ids,
