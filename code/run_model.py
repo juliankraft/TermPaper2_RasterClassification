@@ -212,6 +212,9 @@ if __name__ == '__main__':
     print('done loading trainer', flush=True) # Debugging
 
     trainer.fit(model=model, datamodule=datamodule)
-
+    print('done training', flush=True) # Debugging
+    print('loading best model', flush=True) # Debugging
     best_model_path = cast(str, trainer.checkpoint_callback.best_model_path)  # type: ignore
-    trainer.predict(model=model, datamodule=datamodule, ckpt_path=best_model_path)
+    print('done loading best model', flush=True) # Debugging
+    print('predicting', flush=True) # Debuging
+    trainer.predict(model=model, datamodule=datamodule, ckpt_path=best_model_path, return_predictions=False)
