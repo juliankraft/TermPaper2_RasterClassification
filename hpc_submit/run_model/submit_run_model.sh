@@ -41,4 +41,4 @@ echo
 echo "#########################################   Lets go!"
 echo
 
-micromamba run -n sa2 python run_model.py --device=gpu --num_workers=6 --learning_rate=0.001 --patience=20 --batch_size=256 --overwrite --disable_progress_bar
+micromamba run -n sa2 python run_model.py --device=gpu --num_workers=6 --learning_rate=0.001 --patience=20 --batch_size=256 --overwrite --dev_run
