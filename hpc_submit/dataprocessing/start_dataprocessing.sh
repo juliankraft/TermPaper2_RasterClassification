@@ -26,4 +26,4 @@ else
     conda activate "${conda_env_name:?}"
 fi
 
-python /cfs/earth/scratch/kraftjul/sa2/code/dataprocessing.py
+python /cfs/earth/scratch/kraftjul/sa2/code/src/dataprocessing_seal.py
