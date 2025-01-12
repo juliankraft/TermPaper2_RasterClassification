@@ -10,6 +10,7 @@ path_config.yaml
 # #############################
 # ## Slurm
 
+job_nr*
 Slurm-*/
 typings/
 commitlint.config.js
