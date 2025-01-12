@@ -4,7 +4,7 @@
 
 #SBATCH --mail-type=fail,end
 
-#SBATCH --time=0-00:05:00
+#SBATCH --time=0-00:10:00
 #SBATCH --partition=earth-4
 #SBATCH --constraint=rhel8
 #SBATCH --nodes=1
