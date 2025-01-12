@@ -50,16 +50,15 @@ PYTHON_ARGS=(
     --num_workers=12
     --cutout_size=51
     --output_patch_size=5
-    --learning_rate=0.001
-    --weight_decay=0.0
-    --use_data_augmentation
     --patience=10
-    --overwrite
-    --dev_run
     --use_class_weights
     --disable_progress_bar
-    --output_path=/cfs/earth/scratch/kraftjul/sa2/runs/
-    --label_type=category
+    --label_type=sealed_simple
+    --learning_rate=0.001
+    --weight_decay=0
+    --use_data_augmentation
+    --dev_run
+    --overwrite
 )
 
 for arg in "${PYTHON_ARGS[@]}"; do

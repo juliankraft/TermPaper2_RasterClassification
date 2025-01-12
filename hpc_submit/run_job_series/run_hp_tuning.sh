@@ -35,7 +35,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
 
     formatted_counter=$(printf "%03d" "$counter")
     FILE_PATH="$FOLDER/job_nr_$formatted_counter.sh"
-    JOB_NAME="job_nr_$formatted_counter"
+    JOB_NAME="jk_$formatted_counter"
     MODEL_NAME="Model_$formatted_counter"
 
     cat > "$FILE_PATH" <<EOF
