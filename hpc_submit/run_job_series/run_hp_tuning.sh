@@ -43,7 +43,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
 
 #SBATCH --job-name=$JOB_NAME
 #SBATCH --mail-type=fail,end
-#SBATCH --time=02-00:00:00
+#SBATCH --time=01-12:00:00
 #SBATCH --partition=earth-4
 #SBATCH --constraint=rhel8
 #SBATCH --nodes=1
@@ -75,7 +75,7 @@ PYTHON_ARGS=(
     --patience=10
     --use_class_weights
     --disable_progress_bar
-    --label_type=sealing_simple
+    --label_type=sealed_simple
 EOF
 
     # Add each argument from $line dynamically
@@ -118,13 +118,12 @@ echo '### Running skript #######################################################
 echo '#########################################################################################'
 echo
 
-echo 'micromamba run -n sa2 python run_model.py "\${PYTHON_ARGS[@]}"'
+micromamba run -n sa2 python run_model.py "\${PYTHON_ARGS[@]}"
 
 echo
 echo '#########################################################################################'
 echo '### Completed skript ####################################################################'
 echo '#########################################################################################'
-
 
 EOF
 
