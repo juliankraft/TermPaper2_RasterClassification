@@ -4,7 +4,7 @@
 
 #SBATCH --mail-type=fail,end
 
-#SBATCH --time=0-00:10:00
+#SBATCH --time=0-01:00:00
 #SBATCH --partition=earth-4
 #SBATCH --constraint=rhel8
 #SBATCH --nodes=1
@@ -48,18 +48,18 @@ PYTHON_ARGS=(
     --device=gpu
     --batch_size=256
     --num_workers=12
-    # --cutout_size=51
-    # --output_patch_size=5
+    --cutout_size=51
+    --output_patch_size=5
     --learning_rate=0.001
-    # --weight_decay=0.0
-    # --use_data_augmentation
+    --weight_decay=0.0
+    --use_data_augmentation
     --patience=10
-    # --overwrite
+    --overwrite
     --dev_run
     --use_class_weights
-    # --disable_progress_bar
-    # --output_path=/cfs/earth/scratch/kraftjul/sa2/runs/
-    --label_type=sealed_simple
+    --disable_progress_bar
+    --output_path=/cfs/earth/scratch/kraftjul/sa2/runs/
+    --label_type=category
 )
 
 for arg in "${PYTHON_ARGS[@]}"; do
