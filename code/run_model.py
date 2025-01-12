@@ -21,8 +21,7 @@ def make_dir_from_args(base_path: Path | str, args: Namespace) -> Path:
     else:
         label_type = args.label_type
         augmentation = 'augment' if args.use_data_augmentation else 'noaugment'
-        weighted = 'weighted' if args.use_class_weights else 'noweighted'
-        hyperparameters = f'{augmentation}_{weighted}_lr{args.learning_rate}'
+        hyperparameters = f'{augmentation}_lr{args.learning_rate}_wd{args.weight_decay}'
 
         path = base_path / label_type / hyperparameters
 
@@ -169,10 +168,10 @@ if __name__ == '__main__':
 
     # For dev run, limit batches and max_epochs.
     dev_run_args = {
-        'limit_train_batches': 2 if args.dev_run else 0.2,  # (float = fraction, int = num_batches)
+        'limit_train_batches': 1 if args.dev_run else 0.2,  # (float = fraction, int = num_batches)
         'limit_val_batches': 1 if args.dev_run else 1.0,
         'limit_test_batches': 1 if args.dev_run else 1.0,
-        'limit_predict_batches': 200 if args.dev_run else 1.0,
+        'limit_predict_batches': 10 if args.dev_run else 1.0,
         'max_epochs': 3 if args.dev_run else 300,
         # 'log_every_n_steps': 1 if args.dev_run else 10,
     }
