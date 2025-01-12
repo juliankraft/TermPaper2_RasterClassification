@@ -16,6 +16,7 @@ from src.utils import PredictionWriter
 
 def make_dir_from_args(base_path: Path | str, args: Namespace) -> Path:
     base_path = Path(base_path)
+
     if args.dev_run:
         path = base_path / 'dev_run'
     else:
