@@ -126,8 +126,6 @@ if __name__ == '__main__':
 
     log_dir = make_dir_from_args(base_path=path_config['output_path'], args=args)
 
-    exit()
-
     print('loading datamodule', flush=True) # Debugging
     datamodule = RSDataModule(
         ds_path=path_config['data_path'],
