@@ -30,29 +30,19 @@ class PredictionWriter(BasePredictionWriter):
             pl_module: LightningResNet) -> None:
 
         print('running on_predict_start', flush=True)  # Debugging
-        print('initializing predict dataloaders', flush=True)  # Debugging
         predict_dataloader = cast(DataLoader, trainer.predict_dataloaders)
-        print('getting dataset', flush=True)  # Debugging
         ds = cast(xr.Dataset, predict_dataloader.dataset.ds)  # type: ignore
         num_classes = pl_module.num_classes
 
-        print('getting mask', flush=True)  # Debugging
         self.mask = ds.mask
 
-        print('initializing da', flush=True)  # Debugging
         label_attr = getattr(ds, self.label_type)
         self.da = xr.full_like(
             label_attr.load().expand_dims(cls=np.arange(num_classes), axis=-1),
             dtype=np.float16,
             fill_value=np.nan)
 
-        print('initializing cls_pred', flush=True)  # Debugging
-        self.cls_pred = xr.full_like(
-            label_attr.load(),
-            dtype=np.float16,
-            fill_value=np.nan)
-
-        print('done with on_predict_start', flush=True)  # Debugging
+        self.da.name = 'label_prob'
 
     def write_on_batch_end(
             self,
@@ -64,8 +54,6 @@ class PredictionWriter(BasePredictionWriter):
             batch_idx: int,
             dataloader_idx: int) -> None:
 
-        print('running write_on_batch_end', flush=True)  # Debugging
-
         predicted_label, batch = prediction
 
         predicted_label = predicted_label.cpu()
@@ -74,19 +62,19 @@ class PredictionWriter(BasePredictionWriter):
 
         for p, x, y in zip(predicted_label, xi_patch, yi_patch):
             self.da[{'x': slice(*x), 'y': slice(*y)}] = p
-            predicted_class = np.argmax(p, axis=-1).type(torch.float16).numpy()
-            nan_mask = np.isnan(p).any(axis=-1)
-            predicted_class[nan_mask] = np.nan
-            self.cls_pred[{'x': slice(*x), 'y': slice(*y)}] = predicted_class
 
     def on_predict_end(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
 
         print('running on_predict_end', flush=True)  # Debugging
         da = self.da
 
+        cls_pred = xr.full_like(da.isel(cls=0), fill_value=np.nan)
+        cls_pred.values = np.argmax(da.values, axis=-1).astype('float16')
+        cls_pred = cls_pred.where(da.isel(cls=0).notnull())
+
         ds = xr.Dataset({
             'label_prob': da,
-            'label_pred': self.cls_pred,
+            'label_pred': cls_pred,
             'training_mask': self.mask
         })
         print('saving prediction', flush=True)
