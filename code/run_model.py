@@ -16,8 +16,15 @@ from src.utils import PredictionWriter
 
 def make_dir_from_args(base_path: Path | str, args: Namespace) -> Path:
     base_path = Path(base_path)
-    specific_path = 'augment' if args.use_data_augmentation else 'noaugment'
-    path = base_path / specific_path
+    if args.dev_run:
+        path = base_path / 'dev_run'
+    else:
+        label_type = args.label_type
+        augmentation = 'augment' if args.use_data_augmentation else 'noaugment'
+        weighted = 'weighted' if args.use_class_weights else 'noweighted'
+        hyperparameters = f'{augmentation}_{weighted}_lr{args.learning_rate}'
+
+        path = base_path / label_type / hyperparameters
 
     if path.exists():
         if args.overwrite:
@@ -93,6 +100,12 @@ if __name__ == '__main__':
     # Parse the arguments
     args = parser.parse_args()
 
+    if args.dev_run:
+        print('+---------------------------------------------------------------------------------------+')
+        print('|   !!!   Runing in dev mode.   !!!                                                     |')
+        print('+---------------------------------------------------------------------------------------+')
+        args.overwrite = True
+
     if args.label_type == 'category':
         num_classes = 10
     elif args.label_type == 'sealed':
@@ -110,6 +123,10 @@ if __name__ == '__main__':
         )
     else:
         ac = None
+
+    log_dir = make_dir_from_args(base_path=path_config['output_path'], args=args)
+
+    exit()
 
     print('loading datamodule', flush=True) # Debugging
     datamodule = RSDataModule(
@@ -140,11 +157,6 @@ if __name__ == '__main__':
     )
     print('done loading model', flush=True) # Debugging
 
-    if args.output_path is None:
-        log_dir = make_dir_from_args(base_path=path_config['output_path'], args=args)
-    else:
-        log_dir = args.output_path
-
     tb_logger = TensorBoardLogger(
         save_dir=log_dir,
         name='',
@@ -159,7 +171,7 @@ if __name__ == '__main__':
 
     # For dev run, limit batches and max_epochs.
     dev_run_args = {
-        'limit_train_batches': 1 if args.dev_run else 0.2,  # (float = fraction, int = num_batches)
+        'limit_train_batches': 2 if args.dev_run else 0.2,  # (float = fraction, int = num_batches)
         'limit_val_batches': 1 if args.dev_run else 1.0,
         'limit_test_batches': 1 if args.dev_run else 1.0,
         'limit_predict_batches': 200 if args.dev_run else 1.0,

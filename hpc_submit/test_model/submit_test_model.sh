@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-#SBATCH --job-name=test_model
+#SBATCH --job-name=run_model
 
 #SBATCH --mail-type=fail,end
 
-#SBATCH --time=00-01:00:00
+#SBATCH --time=0-00:05:00
 #SBATCH --partition=earth-4
 #SBATCH --constraint=rhel8
 #SBATCH --nodes=1
@@ -27,19 +27,53 @@ module load DefaultModules
 export MAMBA_ROOT_PREFIX="/cfs/earth/scratch/${USER}/.conda/"
 eval "$("/cfs/earth/scratch/${USER}/bin/micromamba" shell hook -s posix)"
 
+echo '#########################################################################################'
+echo '### Host info: ##########################################################################'
+echo
+echo 'Running on host:'
 hostname
-# ## get GPU info
+echo
 nvidia-smi
-
 echo
-echo "#########################################   Run Model"
-echo
-echo "canging wd"
+echo 'Working directory:'
 cd /cfs/earth/scratch/kraftjul/sa2/code
 pwd
 echo
-echo "#########################################   Lets go!"
+echo '#########################################################################################'
+echo
+echo '#########################################################################################'
+echo '### Arguments: ##########################################################################'
+echo
+PYTHON_ARGS=(
+    --device=gpu
+    --batch_size=256
+    --num_workers=12
+    # --cutout_size=51
+    # --output_patch_size=5
+    --learning_rate=0.001
+    # --weight_decay=0.0
+    # --use_data_augmentation
+    --patience=10
+    # --overwrite
+    --dev_run
+    --use_class_weights
+    # --disable_progress_bar
+    # --output_path=/cfs/earth/scratch/kraftjul/sa2/runs/
+    --label_type=sealed_simple
+)
+
+for arg in "${PYTHON_ARGS[@]}"; do
+    echo "$arg"
+done
+echo
+echo '#########################################################################################'
+echo '### Running skript ######################################################################'
+echo '#########################################################################################'
 echo
 
-micromamba run -n sa2 python run_model.py --device=gpu --label_type=sealed --num_workers=12 --patience=20 --batch_size=256 --overwrite --use_class_weights --dev_run
+micromamba run -n sa2 python run_model.py "${PYTHON_ARGS[@]}"
 
+echo
+echo '#########################################################################################'
+echo '### Completed skript ####################################################################'
+echo '#########################################################################################'

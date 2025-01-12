@@ -27,21 +27,23 @@ module load DefaultModules
 export MAMBA_ROOT_PREFIX="/cfs/earth/scratch/${USER}/.conda/"
 eval "$("/cfs/earth/scratch/${USER}/bin/micromamba" shell hook -s posix)"
 
+echo '#########################################################################################'
+echo '### Host info: ##########################################################################'
+echo
+echo 'Running on host:'
 hostname
-# ## get GPU info
+echo
 nvidia-smi
-
 echo
-echo "#########################################   changing wd"
-echo
-echo "changing wd"
+echo 'Working directory:'
 cd /cfs/earth/scratch/kraftjul/sa2/code
 pwd
 echo
-echo "#########################################   defining drguments"
+echo '#########################################################################################'
 echo
-
-# Define the arguments for the Python script in a list
+echo '#########################################################################################'
+echo '### Arguments: ##########################################################################'
+echo
 PYTHON_ARGS=(
     --device=gpu
     --batch_size=256
@@ -52,18 +54,26 @@ PYTHON_ARGS=(
     # --weight_decay=0.0
     # --use_data_augmentation
     --patience=10
-    --overwrite
+    # --overwrite
     # --dev_run
     --use_class_weights
     # --disable_progress_bar
-    # --output_path=/path/to/output
-    --label_type=sealed
+    # --output_path=/cfs/earth/scratch/kraftjul/sa2/runs/
+    --label_type=sealed_simple
 )
 
-echo "${PYTHON_ARGS[@]}"
+for arg in "${PYTHON_ARGS[@]}"; do
+    echo "$arg"
+done
+echo
+echo '#########################################################################################'
+echo '### Running skript ######################################################################'
+echo '#########################################################################################'
+echo
+
+micromamba run -n sa2 python run_model.py "${PYTHON_ARGS[@]}"
 
 echo
-echo "#########################################   start model"
-
-# Pass the arguments to the Python script
-micromamba run -n sa2 python run_model.py "${PYTHON_ARGS[@]}"
+echo '#########################################################################################'
+echo '### Completed skript ####################################################################'
+echo '#########################################################################################'
