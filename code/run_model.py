@@ -41,8 +41,6 @@ def make_dir_from_args(base_path: Path | str, args: Namespace) -> Path:
 
 
 if __name__ == '__main__':
-    
-    print('running main (run_model.py)', flush=True) # Debugging
 
     # Loading path from yaml
     with open('path_config.yaml', 'r') as file:
@@ -174,7 +172,6 @@ if __name__ == '__main__':
         'limit_test_batches': 1 if args.dev_run else 1.0,
         'limit_predict_batches': 10 if args.dev_run else 1.0,
         'max_epochs': 3 if args.dev_run else 300,
-        # 'log_every_n_steps': 1 if args.dev_run else 10,
     }
 
     # Save all configurations to a yaml file.
@@ -221,12 +218,12 @@ if __name__ == '__main__':
         enable_progress_bar=not args.disable_progress_bar,
         **dev_run_args
     )
-    print('done loading trainer', flush=True) # Debugging
-
+    
+    print('Trainer fit', flush=True) # Debugging
     trainer.fit(model=model, datamodule=datamodule)
-    print('done training', flush=True) # Debugging
+
     print('loading best model', flush=True) # Debugging
     best_model_path = cast(str, trainer.checkpoint_callback.best_model_path)  # type: ignore
-    print('done loading best model', flush=True) # Debugging
+    
     print('predicting', flush=True) # Debuging
     trainer.predict(model=model, datamodule=datamodule, ckpt_path=best_model_path, return_predictions=False)
