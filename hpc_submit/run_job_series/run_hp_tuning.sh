@@ -76,7 +76,6 @@ PYTHON_ARGS=(
     --use_class_weights
     --disable_progress_bar
     --label_type=sealing_simple
-    --dev_run
 EOF
 
     # Add each argument from $line dynamically
