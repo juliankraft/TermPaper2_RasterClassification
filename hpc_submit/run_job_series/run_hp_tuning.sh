@@ -4,6 +4,9 @@
 INPUT_FILE="config.txt"
 FOLDER="jobs"
 RUN_NAME="hp_tuning_01_label:sealing_simple"
+OUTPUT_FILE=$FOLDER/"submitted_jobs.txt"
+
+JOB_LIST=()
 
 # Ensure the file exists
 if [[ ! -f "$INPUT_FILE" ]]; then
@@ -23,10 +26,12 @@ fi
     mkdir -p "$FOLDER"
 
 # Initialize counter
-counter=1
+counter=0
 
 # Loop through each line in the file
 while IFS= read -r line || [[ -n "$line" ]]; do
+
+    counter=$((counter + 1))
 
     formatted_counter=$(printf "%03d" "$counter")
     FILE_PATH="$FOLDER/job_nr_$formatted_counter.sh"
@@ -34,7 +39,6 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     MODEL_NAME="Model_$formatted_counter"
 
     cat > "$FILE_PATH" <<EOF
-
 #!/usr/bin/env bash
 
 #SBATCH --job-name=$JOB_NAME
@@ -75,14 +79,14 @@ PYTHON_ARGS=(
     --dev_run
 EOF
 
-# Add each argument from $line dynamically
-for arg in $line; do
-    echo "    $arg" >> "$FILE_PATH"
-done
+    # Add each argument from $line dynamically
+    for arg in $line; do
+        echo "    $arg" >> "$FILE_PATH"
+    done
 
-# Append the rest of the script
+    # Append the rest of the script
 
-cat >> "$FILE_PATH" <<EOF
+    cat >> "$FILE_PATH" <<EOF
 )
 echo '#########################################################################################'
 echo '### Model info: #########################################################################'
@@ -115,7 +119,7 @@ echo '### Running skript #######################################################
 echo '#########################################################################################'
 echo
 
-# micromamba run -n sa2 python run_model.py "\${PYTHON_ARGS[@]}"
+echo 'micromamba run -n sa2 python run_model.py "\${PYTHON_ARGS[@]}"'
 
 echo
 echo '#########################################################################################'
@@ -125,7 +129,37 @@ echo '##########################################################################
 
 EOF
 
-    counter=$((counter + 1)) # Increment counter
+    
+
+    echo "file created: $FILE_PATH"
+    echo
+    echo "Submitting job: $FILE_PATH"
+    OUTPUT=$(sbatch "$FILE_PATH")
+
+    # Check if the submission was successful
+    if [[ "$OUTPUT" =~ Submitted\ batch\ job\ ([0-9]+) ]]; then
+        JOB_ID="${BASH_REMATCH[1]}"  # Extract the job ID from the response
+        echo "Job submitted successfully."
+        JOB_LIST+=("$JOB_NAME - ID: $JOB_ID")
+    else
+        echo "Error: Job submission failed for $FILE_PATH"
+        exit 1
+    fi
+    
 done < "$INPUT_FILE"
 
-echo "Finished processing $(printf "%03d" "$counter") lines."
+echo
+echo "All jobs submitted successfully."
+echo
+
+# Display the list of job names and IDs at the end
+if [[ ${#JOB_LIST[@]} -gt 0 ]]; then
+    echo
+    echo "List of submitted jobs:"
+    for job in "${JOB_LIST[@]}"; do
+        echo "  $job" | tee -a "$OUTPUT_FILE"
+    
+    done
+else
+    echo "No jobs were submitted."
+fi
