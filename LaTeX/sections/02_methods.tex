@@ -133,8 +133,20 @@ which can be used in the DataLoader.
 \end{table}
 
 
+\subsection{Fitting the Model}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Fitting The Model}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+Fitting the model was done on the IUNR HPC cluster using node 301 a HPE Apollo 6500 Gen10+ 
+node running Rocky Linux 8. The node is equipped with 8 NVIDIA L40S GPUs (48GB each), 
+dual AMD EPYC 7742 processors, 512 cores, and 5800 GB of storage, 
+providing the computational power needed for high-performance tasks.
+The training was done using a potential limit of 300 epochs and an early stopping Callback
+set to stop after 10 epochs without improvement. The model was trained using the AdamW
+optimizer from the PyTorch library. Batch size was set to 128 for training and 256 for validation and prediction.
+The data was sampled in cutout sizes of 51x51 pixels, predicting the 5x5 center pixels.
+To calculate the loss the CrossEntropyLoss was used with default parameters and class weights inversely
+proportional to the available data per class, in order to give more emphasis to classes with
+fewer samples. During training only the best model and the last model where saved.
+On completion of the training the best model was loaded and used for prediction on the whole dataset.
+This predictions where saved as a Zarr file for later use in the evaluation.
 
 \subsection{Evaluation}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
