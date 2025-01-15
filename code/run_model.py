@@ -22,9 +22,9 @@ def make_dir_from_args(base_path: Path | str, args: Namespace) -> Path:
     else:
         label_type = args.label_type
         augmentation = 'augment' if args.use_data_augmentation else 'noaugment'
-        hyperparameters = f'{augmentation}_lr{args.learning_rate}_wd{args.weight_decay}'
+        target_path = f'{label_type}_{augmentation}_lr{args.learning_rate}_wd{args.weight_decay}'
 
-        path = base_path / label_type / hyperparameters
+        path = base_path / 'current_experiment' / target_path
 
     if path.exists():
         if args.overwrite:
