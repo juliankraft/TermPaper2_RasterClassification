@@ -54,7 +54,7 @@ ConstructionSites.
 \begin{figure}[H]
     \centering
     \captionsetup{width=0.8\linewidth}
-    \includegraphics[scale=0.6]{figures/area_by_category_and_seal.pdf}
+    \includegraphics{figures/area_by_category_and_seal.pdf}
     \caption{Available data by label, colored by the area.}
     \label{fig:label_distribution}
 \end{figure}
@@ -71,6 +71,10 @@ deep learning models.
 
 
 \subsection{Data Processing and Augmentation}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+To feed data into the neural network, it is necessary to process it into a format that can be used for training.
+A standardized sample size is needed to ensure that the model can be trained on the data.
+
 
 \subsubsection{Preprocessing}%---------------------------------------
 In a first step the data was processed using ArcGIS Pro. The process included a few steps implemented as
@@ -94,6 +98,9 @@ efficient data access during training.
 \subsubsection{Processing and Augmentation}%-------------------------------
 
 To feed the data into a neural network a PyTorch DataLoader was implemented.
+The data was sampled as cutouts of size 51x51 pixels, predicting the 5x5 center pixels as output.
+This cutout size and output size where implemented as a parameter 
+but no other values where tested.
 The DataLoader indexes the available data depending on the cutout size and the 
 corresponding area labels depending on the purpose - refer to \autoref{tab:areas}. 
 It handles the data augmentation on the fly, during training steps.
@@ -142,7 +149,6 @@ providing the computational power needed for high-performance tasks.
 The training was done using a potential limit of 300 epochs and an early stopping Callback
 set to stop after 10 epochs without improvement. The model was trained using the AdamW
 optimizer from the PyTorch library. Batch size was set to 128 for training and 256 for validation and prediction.
-The data was sampled as cutout size 51x51 pixels, predicting the 5x5 center pixels.
 To calculate the loss the CrossEntropyLoss was used with default parameters and class weights inversely
 proportional to the available data per class, in order to give more emphasis to classes with
 fewer samples. During training only the best model and the last model where saved.
