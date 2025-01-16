@@ -8,14 +8,72 @@
 \section{Introduction}
 \label{introduction}
 
-This term paper is following up on some research done for the canton of Basel-Landschaft, Switzerland.
-For the original research, a geo processing approach was tested to determine the perviousness
-per pixel using aerial imagery including near-infrared (NIR).
+Understanding surface sealing is a critical aspect of urban planning, environmental 
+monitoring, and sustainable development. Sealed surfaces, such as roads, parking lots, 
+and buildings, reduce natural soil permeability, disrupt water infiltration, and 
+contribute to urban heat island effects, flooding, and habitat loss. Accurate detection 
+and mapping of sealed surfaces at high spatial resolutions are essential for informed 
+decision-making and policy development.
+
+Traditionally, remote sensing techniques have been employed to address this challenge. 
+These methods rely on spectral data, including near-infrared (NIR) bands, which are 
+particularly effective for differentiating between sealed and unsealed surfaces due to 
+their ability to capture subtle variations in surface reflectance. However, conventional 
+approaches often involve rule-based geoprocessing or manual interpretation, which can be 
+time-consuming and limited in scalability \autocite{kadhimAdvancesRemoteSensing2016}.
+
+In recent years, the advent of deep learning has revolutionized remote sensing by 
+enabling more automated, accurate, and scalable analysis. Neural networks have proven 
+particularly effective in tasks like image classification, semantic segmentation, and 
+object detection. While many studies in this domain focus on object-based or scene-based 
+approaches \autocite{thapaDeepLearningRemote2023}, pixel-level classification is 
+an area with significant potential for granular analysis of surface characteristics. By 
+leveraging the contextual information of neighboring pixels, pixel-based methods can 
+provide a more detailed understanding of surface sealing, which is vital for 
+applications requiring high spatial accuracy \autocite{zhengHighSpatialResolution2023}.
+
+Convolutional Neural Networks (CNN) have been widely utilized for remote sensing applications, 
+including surface sealing detection and land cover classification. 
+Prominent examples include ResNet-18 and ResNet-50, which have demonstrated strong performance 
+in tasks requiring high-resolution image classification due to their ability to effectively 
+learn hierarchical feature representations \autocite{natyaDeepTransferLearning2022}. 
+VGG19, known for its simplicity and depth, has also been employed in remote sensing studies
+to classify urban landscapes and detect sealed surfaces, benefiting from its consistent 
+feature extraction capabilities \autocite{alemTransferLearningModels2022}. 
+These architectures highlight the effectiveness of deep CNNs in 
+capturing both spatial and contextual information for detailed surface analysis.
 
 
-In this paper an alterative approach is tested - using the same data set, 
-a neural network is trained to classify the aerial imagery.
-This is a promising and rapidly evolving technique in the field of remote sensing.
-While modern approaches focus on a Object or Scene based classification \autocite{thapaDeepLearningRemote2023},
-in this case a pixel or patch based classification is performed -- factoring in the information of a range of neighboring pixels.
 
+
+\subsection{Background and Methodology}
+
+This term paper builds on previous research conducted for the canton of Basel-Landschaft, 
+Switzerland. The original study employed a geoprocessing approach to determine the 
+perviousness of surfaces on a per-pixel basis using aerial imagery, including NIR bands. 
+This method focused on leveraging spectral characteristics to classify surfaces, 
+achieving valuable insights into land cover and sealing patterns.
+
+This paper explores an alternative methodology by applying a CNN, a simplified ResNet-18
+architecture, to the same dataset. CNNs have 
+demonstrated remarkable success in image analysis tasks by learning hierarchical feature 
+representations directly from raw data. By training a neural network on the aerial 
+imagery, this study aims to automate the process of surface classification to determine
+perviousness.
+
+Unlike modern deep learning approaches that emphasize object-based or scene-based 
+classifications \autocite{thapaDeepLearningRemote2023}, this research adopts a 
+pixel-based classification framework. Pixel-based classification not only allows for 
+finer spatial resolution but also incorporates contextual information from neighboring 
+pixels. This is achieved by inputting small patches of image data into the network, 
+enabling it to capture local spatial patterns and textures critical for distinguishing 
+between sealed and unsealed surfaces.
+
+This study contributes to the growing body of research on deep learning in remote 
+sensing by demonstrating the feasibility and potential of a simplified ResNet-18 model 
+for pixel-level classification. Moreover, the inclusion of NIR data ensures that the 
+model can effectively differentiate between surface types based on their spectral 
+properties, a key advantage for urban and environmental applications. The results of 
+this study aim to provide a foundation for future work in this area, such as integrating 
+multi-temporal data or experimenting with more advanced architectures to further enhance 
+performance.
