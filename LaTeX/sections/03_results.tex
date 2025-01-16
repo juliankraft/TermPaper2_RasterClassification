@@ -9,8 +9,40 @@
 \section{Results}
 \label{results}
 
-\subsection{Different Label Types}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The best performing model achieved an accuracy of 0.927 and a weighted F1 Score of 0.927.
+The results for all trained models are summarized in \autoref{tab:accuracy_f1_table}.
+All trained models for the simplified perviousness lead the ranking, followed by the
+models for the perviousness classification and the category classification
+with accuracies of around 0.88 and 0.59, respectively.
 
+\begin{table}[H]
+    \centering
+    \caption{Accuracy and F1 Score for all trained models, arranged by accuracy.}
+    \small
+    \label{tab:accuracy_f1_table}
+    \begin{tabular}{llllll}
+    \toprule
+    LabelType & Augmented & LearningRate & WeightDecay & Accuracy & F1 Score \\
+    \midrule
+    sealed\_simple  & True      & 0.0001    & 0.1   & 0.9274    & 0.9275 \\
+    sealed\_simple  & False     & 0.0001    & 0.01  & 0.9109    & 0.9112 \\
+    sealed\_simple  & True      & 0.001     & 0.1   & 0.9069    & 0.9072 \\
+    sealed\_simple  & True      & 0.0001    & 0.01  & 0.9034    & 0.9038 \\
+    sealed\_simple  & True      & 0.001     & 0     & 0.9028    & 0.9032 \\
+    sealed\_simple  & False     & 0.001     & 0.1   & 0.9021    & 0.9024 \\
+    sealed\_simple  & True      & 0.0001    & 0     & 0.9007    & 0.9011 \\
+    sealed\_simple  & False     & 0.0001    & 0.1   & 0.9000    & 0.9004 \\
+    sealed\_simple  & False     & 0.001     & 0.01  & 0.8999    & 0.9001 \\
+    sealed\_simple  & False     & 0.001     & 0     & 0.8996    & 0.9000 \\
+    sealed\_simple  & True      & 0.001     & 0.01  & 0.8980    & 0.8984 \\
+    sealed\_simple  & False     & 0.0001    & 0     & 0.8977    & 0.8980 \\
+    sealed          & False     & 0.001     & 0.01  & 0.8817    & 0.8716 \\
+    sealed          & True      & 0.001     & 0.01  & 0.8763    & 0.8619 \\
+    category        & True      & 0.001     & 0.01  & 0.5902    & 0.5722 \\
+    category        & False     & 0.001     & 0.01  & 0.5806    & 0.5665 \\
+    \bottomrule
+    \end{tabular}
+\end{table}
 
 \subsection{Augmentation}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
