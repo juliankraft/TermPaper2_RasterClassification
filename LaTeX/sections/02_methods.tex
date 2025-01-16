@@ -67,8 +67,52 @@ The Frameworks PyTorch and Lightning are widely used and powerful tools for buil
 deep learning models.
 
 
-\subsection{Model}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Model Architecture}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+For this study, an adapted version of the ResNet-18 architecture was employed to classify 
+aerial imagery with high spatial resolution. ResNet-18 is a Convolutional Neural Network 
+(CNN) model widely recognized for its residual connections, which mitigate the vanishing 
+gradient problem during training. These connections allow for deeper networks while 
+maintaining efficient backpropagation.
+
+To suit the unique requirements of this research, several modifications were made to the 
+standard ResNet-18 architecture:
+
+\begin{itemize}
+    \item \textbf{Input Channels}: The original ResNet-18 was modified to accept four input 
+    channels (e.g., red, green, blue, and near-infrared bands) instead of the default 
+    three channels (RGB). This adjustment allows the model to leverage the additional 
+    spectral information for improved classification performance on remote sensing data.
+
+    \item \textbf{Layer Configuration}: The network consists of three stages, with 
+    residual blocks containing two convolutional layers per block. The layer configuration 
+    was defined as \texttt{[2, 2, 2]}, corresponding to the number of residual blocks in 
+    each stage.
+
+    \item \textbf{Output Design}: The model was tailored for pixel-wise classification 
+    tasks. The final fully connected layer was replaced with a convolutional layer to 
+    output class probabilities over a patch of pixels. The size of the output patch is 
+    adjustable via the \texttt{output\_patch\_size} parameter.
+
+    \item \textbf{Pooling and Feature Extraction}: An adaptive average pooling layer was 
+    utilized to condense spatial features while maintaining flexibility in input 
+    dimensions. This pooling layer ensures compatibility with variable input sizes.
+
+    \item \textbf{Regularization and Initialization}: Batch normalization layers were used 
+    to stabilize training and improve generalization. Weights in the convolutional layers 
+    were initialized using Kaiming normal initialization, enhancing the model's 
+    convergence during training.
+
+    \item \textbf{Optimization and Training}: The model was trained using the AdamW 
+    optimizer, which combines adaptive learning rate methods with weight decay for 
+    regularization. A weighted cross-entropy loss function was employed to handle class 
+    imbalances effectively.
+\end{itemize}
+
+The modified ResNet-18 model was implemented using PyTorch and integrated into the 
+Lightning framework for efficient training and evaluation. The design leverages the 
+contextual and spectral richness of the four-channel input data, making it well-suited 
+for pixel-level surface sealing classification tasks.
 
 \subsection{Data Processing and Augmentation}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -147,11 +191,8 @@ node running Rocky Linux 8. The node is equipped with 8 NVIDIA L40S GPUs (48GB e
 dual AMD EPYC 7742 processors, 512 cores, and 5800 GB of storage, 
 providing the computational power needed for high-performance tasks.
 The training was done using a potential limit of 300 epochs and an early stopping Callback
-set to stop after 10 epochs without improvement. The model was trained using the AdamW
-optimizer from the PyTorch library. Batch size was set to 128 for training and 256 for validation and prediction.
-To calculate the loss the CrossEntropyLoss was used with default parameters and class weights inversely
-proportional to the available data per class, in order to give more emphasis to classes with
-fewer samples. During training only the best model and the last model where saved.
+set to stop after 10 epochs without improvement. Batch size was set to 128 for training and 256 for validation and prediction.
+During training only the best model and the last model where saved.
 On completion of the training the best model was loaded and used for prediction on the whole dataset.
 This predictions where saved as a Zarr file for later use in the evaluation.
 For each the category classification and the perviousness classification two models where trained
@@ -169,7 +210,7 @@ All combinations of the following parameters where tested:
 
 \subsection{Evaluation}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-For the performance evaluation of the models, the Python library Scikit-Learn was used \autocite{ScikitlearnMachineLearning}. 
+For the performance evaluation of the models, the Python library Scikit-Learn was used. 
 The predictions where loaded from the Zarr file and compared to the ground truth labels.
 Accuracy, F1-Score weighted and per class where calculated for every model and stored to a CSV file
 for later comparison.

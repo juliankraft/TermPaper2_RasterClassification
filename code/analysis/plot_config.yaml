@@ -61,8 +61,8 @@ rgb_norm_settings:
     gamma: 0.4
   '12':
     clip_max: 0.8
-    clip_min: 0.07
-    gamma: 0.4
+    clip_min: 0.2
+    gamma: 0.25
   '2':
     clip_max: 0.94
     clip_min: 0.0
@@ -89,8 +89,8 @@ rgb_norm_settings:
     gamma: 0.4
   '8':
     clip_max: 0.8
-    clip_min: 0.07
-    gamma: 0.4
+    clip_min: 0.2
+    gamma: 0.25
   '9':
     clip_max: 0.8
     clip_min: 0.07
