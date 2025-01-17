@@ -28,7 +28,7 @@ pyproject.toml
 # ## LaTeX
 *.pdf
 !LaTeX/figures/*.pdf
-# !main.pdf
+!main.pdf
 
 # LaTeX/XeLaTeX temporary files
 *.aux
