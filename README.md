@@ -38,6 +38,7 @@ and all visualizations used in the term paper.
 
 - `LaTeX/`: LaTeX source code of the term paper
 - `code/`: Python code for the CNN model and the evaluation
+- `hpc_submit/`: Scripts to submit the training jobs to the HPC
 
 ### Environment
 
