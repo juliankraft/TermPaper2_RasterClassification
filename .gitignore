@@ -4,6 +4,7 @@ slurm_documentation
 data/
 ArcGisProject/
 runs/
+code/sandbox/
 
 path_config.yaml
 
