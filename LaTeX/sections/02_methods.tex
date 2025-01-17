@@ -84,10 +84,9 @@ standard ResNet-18 architecture:
     three channels (RGB). This adjustment allows the model to leverage the additional 
     spectral information for improved classification performance on remote sensing data.
 
-    \item \textbf{Layer Configuration}: The network consists of three stages, with 
-    residual blocks containing two convolutional layers per block. The layer configuration 
-    was defined as \texttt{[2, 2, 2]}, corresponding to the number of residual blocks in 
-    each stage.
+    \item \textbf{Layer Configuration}: To adjust for the limited data available one
+    of the usually four fully connected layers was removed from the model. And the
+    number of planes per block was reduced significantly from 64, 128, 256, 512 to 4, 8, 16.
 
     \item \textbf{Output Design}: The model was tailored for pixel-wise classification 
     tasks. The final fully connected layer was replaced with a convolutional layer to 

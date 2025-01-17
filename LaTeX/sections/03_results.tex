@@ -9,7 +9,7 @@
 \section{Results}
 \label{results}
 
-The best performing model achieved an accuracy of 0.927 and a weighted F1 Score of 0.927.
+The best performing model achieved an accuracy and of 0.9274 and a weighted F1 Score of 0.9275.
 The results for all trained models are summarized in \autoref{tab:accuracy_f1_table}.
 All trained models for the simplified perviousness lead the ranking, followed by the
 models for the perviousness classification and the category classification
@@ -45,10 +45,14 @@ will be considered for further analysis, as it is the most relevant for the stud
     \end{tabular}
 \end{table}
 
-\subsection{Augmentation}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 \subsection{Hyperparameter Tuning}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The Hyperparameter Tuning results included in the \autoref{tab:accuracy_f1_table} and
+visualized in \autoref{fig:hp_tuning_boxplot} show that the \texttt{learning\_rate} of 0.0001
+performs better and that a \texttt{weight\_decay} of 0.1 leads to the best results if
+combined with data augmentation. Over all data augmentation seems to have a positive
+effect on the accuracy but there is an exception for \texttt{weight\_decay} of 0.01
+where the accuracy is higher without data augmentation.
 
 \begin{figure}[H]
     \centering
