@@ -20,10 +20,10 @@ this research highlights promising avenues for future advancements
 in remote sensing through the integration of advanced neural architectures and self-supervised learning.
 
 **Author:**         Julian Kraft<br>
-**Tutor:**          Dr. Johann Junghardt
-**Institution:**    Zurich University of Applied Sciences (ZHAW)
-**Program:**        BSc Natural Resource Sciences
-**Project:**        Term Paper 2
+**Tutor:**          Dr. Johann Junghardt<br>
+**Institution:**    Zurich University of Applied Sciences (ZHAW)<br>
+**Program:**        BSc Natural Resource Sciences<br>
+**Project:**        Term Paper 2<br>
 **Date:**           2025-01-23
 
 **Paper:** [link](./LaTeX/main.pdf)<br>
