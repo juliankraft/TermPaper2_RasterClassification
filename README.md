@@ -26,8 +26,8 @@ in remote sensing through the integration of advanced neural architectures and s
 **Project:**        Term Paper 2  
 **Date:**           2025-01-23
 
-**Paper:** [link](LaTeX/main.pdf)
-**Visualizations:** [link](code/analysis/visualizations.ipynb)
+**Paper:** [link](./LaTeX/main.pdf)
+**Visualizations:** [link](./code/analysis/visualizations.ipynb)
 
 ### Repository Content
 
@@ -43,6 +43,18 @@ and all visualizations used in the term paper.
 
 The environment used to run this model and the evaluation was created using Anaconda. The config file is available as `environment.yml`.
 
+Additionally, the code developed in this project can be installed as a developer package. To do so, run:
 
+```bash
+pip install -e ./code
+```
+
+### License
+
+This repository is licensed under the **CC0 1.0 Universal (Public Domain Dedication)**. 
+
+To the extent possible under law, the authors of this repository have waived all copyright and related or neighboring rights to this work. 
+
+For more details, see the [LICENSE](./LICENSE) file or visit the [Creative Commons Legal Code](https://creativecommons.org/publicdomain/zero/1.0/legalcode).
 
 
