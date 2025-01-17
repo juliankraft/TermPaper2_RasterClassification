@@ -40,7 +40,7 @@ pyproject.toml
 *.out
 *.lof
 *.lot
-*.synctex.gz
+*.gz
 *.bbl
 *.blg
 *.fdb_latexmk
