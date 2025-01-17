@@ -26,7 +26,7 @@ in remote sensing through the integration of advanced neural architectures and s
 **Project:**        Term Paper 2  
 **Date:**           2025-01-23
 
-**Paper:** [link](./LaTeX/main.pdf)
+**Paper:** [link](./LaTeX/main.pdf)<br>
 **Visualizations:** [link](./code/analysis/visualizations.ipynb)
 
 ### Repository Content
