@@ -1,8 +1,23 @@
-## Pixel Classification of Remote Sensing Data - Assessing Impervious and Pervious Surfaces for Rainfall Analysis
+## Pixel Classification of Remote Sensing Data - Assessing Impervious and Pervious Surfaces
+
+### Keywords
+classification, deep learning, machinelearning, remote sensing, land cover classification, perviousness, surface sealing
 
 ### Abstract
 
-
+Understanding the distribution of impervious and pervious surfaces is critical 
+for effective urban planning, environmental management, and rainfall impact analysis. 
+This study explores the use of convolutional neural networks (CNN) for 
+pixel-based classification of aerial remote sensing data to assess surface sealing. 
+Leveraging high-resolution SwissImage RS data, the analysis employs a simplified 
+ResNet-18 architecture adapted for four-channel inputs, including RGB and 
+near-infrared bands. A comprehensive workflow was developed, encompassing 
+data preprocessing, augmentation, and hyperparameter tuning. The best-performing 
+model achieved a classification accuracy of 0.927 for simplified surface perviousness, 
+demonstrating the potential of deep learning to improve upon traditional 
+geoprocessing methods. While challenges such as mixed pixels and class imbalances remain, 
+this research highlights promising avenues for future advancements 
+in remote sensing through the integration of advanced neural architectures and self-supervised learning.
 
 **Author:**         Julian Kraft  
 **Tutor:**          Dr. Johann Junghardt  
@@ -11,10 +26,8 @@
 **Project:**        Term Paper 2  
 **Date:**           2025-01-23
 
-**Data:** 
-
 **Paper:** [link](LaTeX/main.pdf)
-**Visualizations:** [link](code/visualizations.ipynb)
+**Visualizations:** [link](code/analysis/visualizations.ipynb)
 
 ### Repository Content
 
@@ -26,29 +39,9 @@ and all visualizations used in the term paper.
 - `LaTeX/`: LaTeX source code of the term paper
 - `code/`: Python code for the CNN model and the evaluation
 
+### Environment
 
-### Usage
-
-To set up the environment run the following command:
-
-```bash
-conda env create -f environment.yml
-```
-
-After switching to the `./code` directory and activate the environment and run the following command:
-
-```bash
-conda activate sa2
-pip install -e .
-```
-
-To run an experiment run from the `./code` directory:
-
-```bash
-python run_model.py --device=gpu -o --dev_run --batch_size=10
-```
-
-Available arguments are:
+The environment used to run this model and the evaluation was created using Anaconda. The config file is available as `environment.yml`.
 
 
 
