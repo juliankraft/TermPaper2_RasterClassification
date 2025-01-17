@@ -21,7 +21,7 @@ in remote sensing through the integration of advanced neural architectures and s
 
 **Author:**         Julian Kraft
 **Tutor:**          Dr. Johann Junghardt
-**Institution:**    Zurich University of Applied Sciences (ZHAW)<br>
+**Institution:**    Zurich University of Applied Sciences (ZHAW)
 **Program:**        BSc Natural Resource Sciences
 **Project:**        Term Paper 2
 **Date:**           2025-01-23
