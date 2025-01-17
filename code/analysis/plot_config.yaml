@@ -32,20 +32,20 @@ class_info_category:
 class_info_sealed:
   0:
   - unsealed
-  - '#B6FFB8'
+  - '#4DAF4A'
   1:
   - sealed
-  - '#FDECCF'
+  - '#984EA3'
   2:
   - unknown
-  - '#FBB4AE'
+  - '#FF7F00'
 diff_info:
   10:
   - Correct Prediction
-  - '#7CB9E8'
+  - '#377EB8'
   11:
   - Incorrect Prediction
-  - '#FF6F91'
+  - '#E41A1C'
 rgb_norm_settings:
   '1':
     clip_max: 0.95
