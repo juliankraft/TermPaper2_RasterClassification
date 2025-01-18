@@ -69,49 +69,43 @@ deep learning models.
 
 \subsection{Model Architecture}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-For this study, an adapted version of the ResNet-18 architecture was employed to classify 
-aerial imagery with high spatial resolution. ResNet-18 is a Convolutional Neural Network 
-(CNN) model widely recognized for its residual connections, which mitigate the vanishing 
-gradient problem during training. These connections allow for deeper networks while 
-maintaining efficient backpropagation.
+For this study, an adapted version of the ResNet-18 architecture was used to classify 
+aerial imagery with high spatial resolution. ResNet-18 is a CNN model 
+using residual connections, to solve the issue of vanishing
+gradients during training. The residual connections allow the model to learn
+for deeper models reducing the risk of overfitting.
 
-To suit the unique requirements of this research, several modifications were made to the 
-standard ResNet-18 architecture:
+In order for the model to work for the given problem with the available data, some 
+modifications to the standard ResNet-18 architecture where necessary:
 
 \begin{itemize}
-    \item \textbf{Input Channels}: The original ResNet-18 was modified to accept four input 
-    channels (e.g., red, green, blue, and near-infrared bands) instead of the default 
-    three channels (RGB). This adjustment allows the model to leverage the additional 
-    spectral information for improved classification performance on remote sensing data.
+    \item \textbf{Input Channels}: The original ResNet-18 was modified to work with four input 
+    channels (e.g., red, green, blue, and near-infrared bands) instead of the standard
+    three channels (RGB). Adding this fourth channel provides essential spectral
+    information. The NIR is especially suited to detect vegetation \autocite{rouseMonitoringVegetationSystems1974} 
+    presumably helping a lot in the classification of pervious surfaces.
 
     \item \textbf{Layer Configuration}: To adjust for the limited data available one
     of the usually four fully connected layers was removed from the model. And the
     number of planes per block was reduced significantly from 64, 128, 256, 512 to 4, 8, 16.
 
-    \item \textbf{Output Design}: The model was tailored for pixel-wise classification 
-    tasks. The final fully connected layer was replaced with a convolutional layer to 
-    output class probabilities over a patch of pixels. The size of the output patch is 
-    adjustable via the \texttt{output\_patch\_size} parameter.
+    \item \textbf{Output Design}: Originally the ResNet-18 model was designed for image
+    classification tasks, outputting a single label for the whole image. Dew to
+    efficiency reasons the model was adapted to output a patch of pixels instead.
+    For this the last fully connected layer was replaced with a convolutional layer
+    mapping the output to a patch of pixels. The size of the output patch is adjustable
+    via the \texttt{output\_patch\_size} parameter.
+\end{itemize}    
 
-    \item \textbf{Pooling and Feature Extraction}: An adaptive average pooling layer was 
-    utilized to condense spatial features while maintaining flexibility in input 
-    dimensions. This pooling layer ensures compatibility with variable input sizes.
+Some batch normalization layers help to stabilize the training and improve generalization.
+For the training the AdamW optimizer was used, which combines adaptive learning
+rate methods with weight decay for regularization. The model was trained using
+a weighted cross-entropy loss function to handle class imbalances effectively.
 
-    \item \textbf{Regularization and Initialization}: Batch normalization layers were used 
-    to stabilize training and improve generalization. Weights in the convolutional layers 
-    were initialized using Kaiming normal initialization, enhancing the model's 
-    convergence during training.
+The modified ResNet-18 model was implemented using PyTorch and was trained using 
+the Lightning framework. Which provides a high-level interface for PyTorch
+and is quite accessible even for beginners.
 
-    \item \textbf{Optimization and Training}: The model was trained using the AdamW 
-    optimizer, which combines adaptive learning rate methods with weight decay for 
-    regularization. A weighted cross-entropy loss function was employed to handle class 
-    imbalances effectively.
-\end{itemize}
-
-The modified ResNet-18 model was implemented using PyTorch and integrated into the 
-Lightning framework for efficient training and evaluation. The design leverages the 
-contextual and spectral richness of the four-channel input data, making it well-suited 
-for pixel-level surface sealing classification tasks.
 
 \subsection{Data Processing and Augmentation}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

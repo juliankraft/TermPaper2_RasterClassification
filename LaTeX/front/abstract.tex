@@ -14,14 +14,16 @@ Understanding the distribution of impervious and pervious surfaces is critical
 for effective urban planning, environmental management, and rainfall impact analysis. 
 This study explores the use of convolutional neural networks (CNN) for 
 pixel-based classification of aerial remote sensing data to assess surface sealing. 
-Leveraging high-resolution SwissImage RS data, the analysis employs a simplified 
+Using high-resolution SwissImage RS data, the analysis employs a simplified 
 ResNet-18 architecture adapted for four-channel inputs, including RGB and 
-near-infrared bands. A comprehensive workflow was developed, encompassing 
-data preprocessing, augmentation, and hyperparameter tuning. The best-performing 
-model achieved a classification accuracy of 0.927 for simplified surface perviousness, 
-demonstrating the potential of deep learning to improve upon traditional 
-geoprocessing methods. While challenges such as mixed pixels and class imbalances remain, 
-this research highlights promising avenues for future advancements 
-in remote sensing through the integration of advanced neural architectures and self-supervised learning.
+near-infrared bands. A detailed workflow was developed, describing the 
+preprocessing of the data, the training and evaluation of the model.
+A data augmentation strategy was implemented to improve the models performance
+and a hyperparameter tuning process was conducted to optimize the model.
+The best-performing model achieved a classification accuracy of 0.927 
+which is in a similar range to the results of the previous studies
+utilizing a geo processing approach. While challenges such as mixed pixels
+problems or the limited data availability remain, this study demonstrates
+the potential of deep learning for detailed surface sealing analysis.
 
 \vspace*{\fill}
