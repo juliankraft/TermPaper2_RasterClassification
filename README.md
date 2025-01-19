@@ -59,5 +59,3 @@ This repository is licensed under the **CC0 1.0 Universal (Public Domain Dedicat
 To the extent possible under law, the authors of this repository have waived all copyright and related or neighboring rights to this work. 
 
 For more details, see the [LICENSE](./LICENSE) file or visit the [Creative Commons Legal Code](https://creativecommons.org/publicdomain/zero/1.0/legalcode).
-
-
