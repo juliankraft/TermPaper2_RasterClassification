@@ -1,7 +1,7 @@
-## Pixel Classification of Remote Sensing Data - Assessing Impervious and Pervious Surfaces
+## Deep Learning for Pixel-Level Classification of Impervious and Pervious Surfaces in Remote Sensing
 
 ### Keywords
-classification, deep learning, machinelearning, remote sensing, land cover classification, perviousness, surface sealing
+classification, deep learning, machine learning, remote sensing, land cover classification, impervious surfaces, pervious surfaces, surface sealing, urbanization, environmental monitoring, pixel-based analysis
 
 ### Abstract
 
