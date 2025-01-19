@@ -11,31 +11,31 @@
 Understanding surface sealing is a critical aspect of urban planning, environmental 
 monitoring, and sustainable development. Sealed surfaces, such as roads, parking lots, 
 and buildings, are impervious to water and can change the hydrological properties of
-an area. Water can not infiltrate the ground reducing the groundwater recharge and
+an area. Water cannot infiltrate the ground, reducing groundwater recharge and
 increasing the risk of flooding. In addition, the collected water flows together with
-the wast water into water treatment plants, which can lead to overloading. This
-can lead to untreated water being released into the environment. Therefore,
+wastewater into water treatment plants, which can lead to overloading. This
+can result in untreated water being released into the environment. Therefore,
 knowledge about the perviousness of surfaces is essential for informed decision-making
 and policy development.
 
 Traditionally, remote sensing techniques have been used to address this challenge. 
 These methods rely on spectral data, including near-infrared (NIR) bands, which are 
-particularly effective for classifying between sealed and unsealed surfaces
-However, conventional approaches often involve rule-based geo processing or manual interpretation, 
+particularly effective for classifying sealed and unsealed surfaces. 
+However, conventional approaches often involve rule-based geoprocessing or manual interpretation, 
 which can be time-consuming and limited in scalability \autocite{kadhimAdvancesRemoteSensing2016}.
 
-In recent years, advancements in deep learning has revolutionized remote sensing by 
+In recent years, advancements in deep learning have revolutionized remote sensing by 
 enabling more automated, accurate, and scalable analysis. This is heavily driven
-by the fast improvements in computational power and the availability of large
-datasets.Neural networks have proven great potential for tasks like image classification,
-segmentation and object detection. While many studies in this domain focus on object-based or scene-based 
+by rapid improvements in computational power and the availability of large
+datasets. Neural networks have demonstrated great potential for tasks like image classification,
+segmentation, and object detection. While many studies in this domain focus on object-based or scene-based 
 approaches \autocite{thapaDeepLearningRemote2023}, pixel-level classification is 
 an area with significant potential for granular analysis of surface characteristics.
 By factoring in the information of neighboring pixels, pixel-based methods can 
-potentially provide very detailed analysis of an area. Especially if high spatial
-resolution of spectral data is available \autocite{zhengHighSpatialResolution2023}.
+potentially provide very detailed analyses of an area, especially if high spatial
+resolution spectral data is available \autocite{zhengHighSpatialResolution2023}.
 
-Convolutional Neural Networks (CNN) have been widely used for remote sensing applications, 
+Convolutional Neural Networks (CNNs) have been widely used for remote sensing applications, 
 including surface sealing detection and land cover classification. 
 Prominent examples include the use of models like ResNet-18 and ResNet-50, which have demonstrated strong performance 
 in tasks requiring high-resolution image classification due to their ability to effectively 
@@ -46,30 +46,29 @@ feature extraction capabilities \autocite{alemTransferLearningModels2022}.
 These architectures highlight the effectiveness of deep CNNs in 
 capturing both spatial and contextual information for detailed surface analysis.
 
-
 \subsection{Background and Methodology}
 
 This term paper builds on previous research conducted by researchers at the
 Zurich University of Applied Sciences (ZHAW) for the canton of Basel-Landschaft, 
-Switzerland. The original study examines a geo processing approach to determine the 
-perviousness of surfaces on a pixel level. The study combined high resolution SwissImage
-remote sensing (RS) data with survey data identifying building footprints, roads and other sealed surfaces.
+Switzerland. The original study examines a geoprocessing approach to determine the 
+perviousness of surfaces on a pixel level. The study combined high-resolution SwissImage
+remote sensing (RS) data with survey data identifying building footprints, roads, and other sealed surfaces.
 This paper explores an alternative methodology by feeding the RS data into a CNN
-to classify the surface sealing. CNNs have demonstrated great potential for image
+to classify surface sealing. CNNs have demonstrated great potential for image
 classification by learning hierarchical feature representations directly from raw data \autocite{zhaoReviewConvolutionalNeural2024}.
-Successfully training a CNN to detect sealed surfaces would provide a cost effective
-and scalable alternative to the geo processing approach.
+Successfully training a CNN to detect sealed surfaces would provide a cost-effective
+and scalable alternative to the geoprocessing approach.
 
-Unlike modern deep learning approaches that often focuse on object-based or scene-based 
+Unlike modern deep learning approaches that often focus on object-based or scene-based 
 classifications \autocite{thapaDeepLearningRemote2023}, this research examines a 
-pixel-based classification approach. Pixel-based classification allow for a
-very fine grained analysis. This is especially useful when high resolution data is
-available as with the SwissImage data with a resolution of 10cm. By inputting small
-patches of pixels the information of neighboring pixels can be used to improve the
+pixel-based classification approach. Pixel-based classification allows for a
+very fine-grained analysis. This is especially useful when high-resolution data is
+available, as with the SwissImage data with a resolution of 10 cm. By inputting small
+patches of pixels, the information of neighboring pixels can be used to improve the
 classification.
 
 This study employs a simplified ResNet-18 architecture, adapted to accept four-channel
 inputs, including RGB and NIR bands. The labeled data from the original research
 is used both to train and test the model. The results will provide an indication
-of the potential of deep learning for surface sealing classification. And in
-the best case an viable alternative to the geo processing approach.
+of the potential of deep learning for surface sealing classification, and in
+the best case, a viable alternative to the geoprocessing approach.
