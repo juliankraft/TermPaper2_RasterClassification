@@ -51,9 +51,7 @@ class RSData(Dataset):
         if output_patch_size % 2 == 0:
             raise ValueError('`output_patch_size` must be an odd integer.')
 
-        print('computing mask values', flush=True) # Debugging
         self.mask_values = self.get_mask_values(mask_area_ids)
-        print('done computing mask values', flush=True) # Debugging
 
         self.cutout_size = cutout_size
         self.offset = int(self.cutout_size // 2)
@@ -89,8 +87,6 @@ class RSData(Dataset):
                 'either pass all of `feature_stat_means`, `feature_stat_stds`, and `class_weights` or none.'
             )
 
-        print('computing feature stats', flush=True) # Debugging
-
         if feature_stat_means is None:
             stats = par_stats(
                             path=ds_path,
@@ -113,8 +109,6 @@ class RSData(Dataset):
         self.feature_stat_means = feature_stat_means
         self.feature_stat_stds = feature_stat_stds
         self.class_weights = class_weights
-
-        print('done computing feature stats', flush=True) # Debugging
 
         if augmentor_chain is None:
             self.augmentor_chain = AugmentorChain(random_seed=0, augmentors=[])
@@ -212,12 +206,10 @@ class RSDataModule(L.LightningDataModule):
         self.num_workers = num_workers
         self.disable_progress_bar = disable_progress_bar
         self.augmentor_chain = augmentor_chain
-        print('computing training data stats', flush=True) # Debugging
         train_data = self.get_dataset(mode='init')
         self.feature_stat_means = train_data.feature_stat_means
         self.feature_stat_stds = train_data.feature_stat_stds
         self.class_weights = train_data.class_weights
-        print('done computing stats', flush=True) # Debugging
         self.dataloader_args: dict[str, Any] = {
             'num_workers': self.num_workers,
             # 'persistent_workers': True
@@ -244,7 +236,6 @@ class RSDataModule(L.LightningDataModule):
                 f'`mode` must be one of \'init\', \'train\', \'valid\', \'test\', is \'{mode}\'.'
             )
 
-        print(f'creating {mode} dataset', flush=True) # Debugging
         dataset = RSData(
             ds_path=self.ds_path,
             num_workers=self.num_workers,
@@ -261,7 +252,6 @@ class RSDataModule(L.LightningDataModule):
             augmentor_chain=augmentor_chain
         )
 
-        print(f'creating {mode} dataset done', flush=True) # Debugging
         return dataset
 
     def train_dataloader(self) -> DataLoader:

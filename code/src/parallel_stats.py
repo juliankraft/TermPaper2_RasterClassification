@@ -163,8 +163,6 @@ def par_stats(
         num_processes: int = 1,
         disable_progress_bar: bool = False):
 
-    print(f'Computing stats - num_processes {num_processes}...') # Debugging
-
     stats = {}
 
     for var in variables:
@@ -226,8 +224,6 @@ def par_class_weights(
         mask: xr.DataArray | None = None,
         num_processes: int = 1,
         disable_progress_bar: bool = False):
-
-    print(f'Computing class weights - num_processes {num_processes}...') # Debugging
 
     results = chunk_parcall(
         path=path,

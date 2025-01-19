@@ -29,9 +29,8 @@ class PredictionWriter(BasePredictionWriter):
             trainer: L.Trainer,
             pl_module: LightningResNet) -> None:
 
-        print('running on_predict_start', flush=True)  # Debugging
         predict_dataloader = cast(DataLoader, trainer.predict_dataloaders)
-        ds = cast(xr.Dataset, predict_dataloader.dataset.ds)  # type: ignore
+        ds = cast(xr.Dataset, predict_dataloader.dataset.ds)
         num_classes = pl_module.num_classes
 
         self.mask = ds.mask
@@ -65,7 +64,6 @@ class PredictionWriter(BasePredictionWriter):
 
     def on_predict_end(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
 
-        print('running on_predict_end', flush=True)  # Debugging
         da = self.da
 
         cls_pred = xr.full_like(da.isel(cls=0), fill_value=np.nan)

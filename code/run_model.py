@@ -124,7 +124,6 @@ if __name__ == '__main__':
 
     log_dir = make_dir_from_args(base_path=path_config['output_path'], args=args)
 
-    print('loading datamodule', flush=True) # Debugging
     datamodule = RSDataModule(
         ds_path=path_config['data_path'],
         num_classes=num_classes,
@@ -139,10 +138,8 @@ if __name__ == '__main__':
         num_workers=args.num_workers,
         disable_progress_bar=args.disable_progress_bar
     )
-    print('done loading datamodule', flush=True) # Debugging
 
     # Model
-    print('loading model', flush=True) # Debugging
     model = LightningResNet(
         num_classes=num_classes,
         output_patch_size=args.output_patch_size,
@@ -151,7 +148,6 @@ if __name__ == '__main__':
         use_class_weights=args.use_class_weights,
         class_weights=datamodule.get_class_weights()
     )
-    print('done loading model', flush=True) # Debugging
 
     tb_logger = TensorBoardLogger(
         save_dir=log_dir,
@@ -197,7 +193,6 @@ if __name__ == '__main__':
         yaml.dump(config, f, default_flow_style=False)
 
     # Trainer
-    print('loading trainer', flush=True) # Debugging
     trainer = L.Trainer(
         default_root_dir=log_dir,
         accelerator=args.device,
@@ -218,12 +213,9 @@ if __name__ == '__main__':
         enable_progress_bar=not args.disable_progress_bar,
         **dev_run_args
     )
-    
-    print('Trainer fit', flush=True) # Debugging
+
     trainer.fit(model=model, datamodule=datamodule)
 
-    print('loading best model', flush=True) # Debugging
     best_model_path = cast(str, trainer.checkpoint_callback.best_model_path)  # type: ignore
-    
-    print('predicting', flush=True) # Debuging
+
     trainer.predict(model=model, datamodule=datamodule, ckpt_path=best_model_path, return_predictions=False)
