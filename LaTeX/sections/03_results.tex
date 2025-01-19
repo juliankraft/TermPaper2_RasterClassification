@@ -5,11 +5,10 @@
 % 03_results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 \section{Results}
 \label{results}
 
-The best performing model achieved an accuracy and of 0.9274 and a weighted F1 Score of 0.9275.
+The best-performing model achieved an accuracy of 0.9274 and a weighted F1 Score of 0.9275.
 The results for all trained models are summarized in \autoref{tab:accuracy_f1_table}.
 All trained models for the simplified perviousness lead the ranking, followed by the
 models for the perviousness classification and the category classification
@@ -47,40 +46,40 @@ will be considered for further analysis, as it is the most relevant for the stud
 
 \subsection{Hyperparameter Tuning}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The Hyperparameter Tuning results included in the \autoref{tab:accuracy_f1_table} and
+The hyperparameter tuning results included in \autoref{tab:accuracy_f1_table} and
 visualized in \autoref{fig:hp_tuning_boxplot} show that the \texttt{learning\_rate} of 0.0001
-performs better and that a \texttt{weight\_decay} of 0.1 leads to the best results if
-combined with data augmentation. Over all data augmentation seems to have a positive
-effect on the accuracy but there is an exception for \texttt{weight\_decay} of 0.01
+performs better and that a \texttt{weight\_decay} of 0.1 leads to the best results when
+combined with data augmentation. Overall, data augmentation seems to have a positive
+effect on accuracy, but there is an exception for \texttt{weight\_decay} of 0.01,
 where the accuracy is higher without data augmentation.
 
 \begin{figure}[H]
     \centering
     \captionsetup{width=0.8\linewidth}
     \includegraphics{figures/hp_tuning_boxplot.pdf}
-    \caption{Accuracy of the models for the different hyperparameter grouped by use of data augmentation.}
+    \caption{Accuracy of the models for the different hyperparameters grouped by use of data augmentation.}
     \label{fig:hp_tuning_boxplot}
 \end{figure}
 
 \subsection{Best Model}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The best performing model was the one for the simplified perviousness classification
-with the following hyperparameter:
+The best-performing model was the one for the simplified perviousness classification
+with the following hyperparameters:
 \begin{itemize}
     \item Learning rate: 0.001
     \item Weight decay: 0.01
     \item Data augmentation applied
 \end{itemize}
 It achieved an accuracy of 0.927 and a weighted F1 Score of 0.927.
-The F1 Score per class was 0.92 for class 'unsealed' and 0.93 for class 'sealed'.
+The F1 Score per class was 0.92 for class \texttt{'unsealed'} and 0.93 for class \texttt{'sealed'}.
 The accuracy per category is shown in \autoref{fig:best_model_accuracy_per_category}.
-For a visual inspection of the predictions refer to \autoref{fig:best_model_visual}.
+For a visual inspection of the predictions, refer to \autoref{fig:best_model_visual}.
 
 \begin{figure}[H]
     \centering
     \captionsetup{width=0.8\linewidth}
     \includegraphics{figures/best_model_accuracy_per_category.pdf}
-    \caption{Accuracy per category for the best performing model including relative count of available data for each category.}
+    \caption{Accuracy per category for the best-performing model including the relative count of available data for each category.}
     \label{fig:best_model_accuracy_per_category}
 \end{figure}
 
