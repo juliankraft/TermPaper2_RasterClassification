@@ -58,11 +58,12 @@ border areas. This is also supported by \autoref{fig:incorrect_per_category},
 which shows that the incorrectly predicted pixels are often located at the borders  
 of objects. Another reason for wrong predictions seems to be inaccuracy in the  
 ground truth data. This is especially visible in Area 8 -- the building on the  
-top right -- which seems to include some green areas within the building area in the labels.  
+top right -- which seems to include some green areas within the building perimeter according to the labels.  
 There the model predictions might be more accurate than the ground truth data.  
-Another issue seems to be with the \texttt{ConstructionSite} class, where the  
-data seems to include the area around the actual site, where the model might have been  
-more accurate as well.
+Another issue seems to be with the \texttt{ConstructionSite} class, where some
+areas marked as wrongly predicted might actually be correctly predicted by the model
+and incorrectly labeled in the ground truth data. In order to improve the result, a thorough
+inspection of the ground truth data might be necessary.
 
 \subsection{Comparing the Results to the GIS Approach}
 
