@@ -49,20 +49,20 @@ very little data available, like \texttt{WaterBasin}, or classes where the data 
 like \texttt{ConstructionSites}, are predicted with lower accuracy.
 
 From the visual inspection of the predictions in \autoref{fig:best_model_visual},  
-it looks like the borders between the classes are difficult to predict. This can be  
+it appears that the borders between the classes are difficult to predict. This can be  
 explained by the fact that the classes are not always very precise, which specifically  
 affects these areas. Another explanation could be the resolution of 10 cm,  
 which leads to pixels in reality consisting of multiple classes. This issue, referred to  
 as mixed pixels, could be part of the reason for the lower accuracy in the  
 border areas. This is also supported by \autoref{fig:incorrect_per_category},  
 which shows that the incorrectly predicted pixels are often located at the borders  
-of objects. Another reason for wrong predictions seems to be inaccuracy in the  
+of objects. Another reason for incorrect predictions seems to be inaccuracy in the  
 ground truth data. This is especially visible in Area 8 -- the building on the  
 top right -- which seems to include some green areas within the building perimeter according to the labels.  
-There the model predictions might be more accurate than the ground truth data.  
-Another issue seems to be with the \texttt{ConstructionSite} class, where some
-areas marked as wrongly predicted might actually be correctly predicted by the model
-and incorrectly labeled in the ground truth data. In order to improve the result, a thorough
+There, the model predictions might be more accurate than the ground truth data.  
+Another issue seems to be with the \texttt{ConstructionSite} class, where some  
+areas marked as incorrectly predicted might actually be correctly predicted by the model  
+and incorrectly labeled in the ground truth data. To improve the results, a thorough  
 inspection of the ground truth data might be necessary.
 
 \subsection{Comparing the Results to the GIS Approach}
