@@ -9,6 +9,21 @@
 \section{Discussion}
 \label{discussion}
 
+\subsection{Hyperparameter Tuning}
+
+The hyperparameter tuning process was successful in finding the best hyperparameters
+within the grid search. From \autoref{fig:hp_tuning_boxplot}, it can be seen that
+lower values for the \texttt{learning\_rate} seem to work better and that
+a higher regularization during training -- a higher value of \texttt{weight\_decay} -- leads to
+better results. Very interesting is the fact that the benefit of the data augmentation
+seems to correlate with more regularization during training.
+The grid of evaluated hyperparameters was rather limited due to limited computational
+resources and the remaining time. A more extensive search could potentially lead to
+even better results. What might really be worth trying is testing even smaller
+values of \texttt{learning\_rate}, higher values for \texttt{weight\_decay}, 
+and using other options for data augmentation --
+pixel- and channel-noise in different combinations.
+
 \subsection{Best Model Performance}
 
 The best-performing model achieved a reasonably high accuracy of 0.92. The validation
@@ -39,22 +54,15 @@ explained by the fact that the classes are not always very precise, which specif
 affects these areas. Another explanation could be the resolution of 10 cm,
 which leads to pixels in reality consisting of multiple classes. This issue, referred to
 as mixed pixels, could be part of the reason for the lower accuracy in the
-border areas.
-
-\subsection{Hyperparameter Tuning}
-
-The hyperparameter tuning process was successful in finding the best hyperparameters
-within the grid search. From \autoref{fig:hp_tuning_boxplot}, it can be seen that
-lower values for the \texttt{learning\_rate} seem to work better and that
-a higher regularization during training -- a higher value of \texttt{weight\_decay} -- leads to
-better results. Very interesting is the fact that the benefit of the data augmentation
-seems to correlate with more regularization during training.
-The grid of evaluated hyperparameters was rather limited due to limited computational
-resources and the remaining time. A more extensive search could potentially lead to
-even better results. What might really be worth trying is testing even smaller
-values of \texttt{learning\_rate}, higher values for \texttt{weight\_decay}, 
-and using other options for data augmentation --
-pixel- and channel-noise in different combinations.
+border areas. This is also supported by the \autoref{fig:incorrect_per_category},
+which shows that the incorrectly predicted pixels are often located at the borders
+of objects. An other reason for wrong predictions seems to be inaccuracy in the
+ground truth data. This is especially visible in the Area 8 -- the Building on the
+top right -- seems to include some green areas within the building area in the labels.
+There the models predictions might be more accurate than the ground truth data.
+An other issue seems to be with the \texttt{ConstructionSite} class, where the
+data seems to include the area around the actual sight where the model might have been
+more accurate as well.
 
 \subsection{Comparing the Results to the GIS Approach}
 
