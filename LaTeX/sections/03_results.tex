@@ -72,8 +72,22 @@ with the following hyperparameters:
 \end{itemize}
 It achieved an accuracy of 0.927 and a weighted F1 Score of 0.927.
 The F1 Score per class was 0.92 for class \texttt{'unsealed'} and 0.93 for class \texttt{'sealed'}.
-The accuracy per category is shown in \autoref{fig:best_model_accuracy_per_category}.
 For a visual inspection of the predictions, refer to \autoref{fig:best_model_visual}.
+The accuracy per category, shown in \autoref{fig:best_model_accuracy_per_category}, shows categories
+like \texttt{Building}, \texttt{BuildingDistortion} and \texttt{GreenArea} predicted with an accuracy between 0.8 and 0.9.
+The categories \texttt{RoadAsphalt}, \texttt{Forrest} and \texttt{MeadowPasture} where predicted with an accuracy above 0.95.
+The categories \texttt{ConstructionSite}, \texttt{WaterBasin}, \texttt{Path} and \texttt{SealedObjects} where predicted with
+an accuracy below 0.8. To investigate the incorrect predictions further, a plot was created that shows the incorrectly
+predicted pixels colored by land cover category in \autoref{fig:incorrect_per_category}. Since in the
+rural test area it was not showing much, the plot is limited to the urban and industrial test areas.
+
+\begin{figure}[H]
+    \centering
+    \captionsetup{width=0.8\linewidth}
+    \includegraphics{figures/best_model_visual.pdf}
+    \caption{Visual inspection of the predictions for the test areas of the best model.}
+    \label{fig:best_model_visual}
+\end{figure}
 
 \begin{figure}[H]
     \centering
@@ -86,7 +100,10 @@ For a visual inspection of the predictions, refer to \autoref{fig:best_model_vis
 \begin{figure}[H]
     \centering
     \captionsetup{width=0.8\linewidth}
-    \includegraphics{figures/best_model_visual.pdf}
-    \caption{Visual inspection of the predictions for the test areas of the best model.}
-    \label{fig:best_model_visual}
+    \includegraphics{figures/incorrect_per_category.pdf}
+    \caption{Incorrectly predicted pixels colored by land cover category on the bottom row. The top row shows the RGB image for reference.}
+    \label{fig:incorrect_per_category}
 \end{figure}
+
+
+
